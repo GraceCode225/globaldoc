@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messagerie — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="commander.html">📦 Commander</a></li>
+    <li><a href="messagerie.html" class="active">💬 Messages</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <button onclick="logout()" class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;">Déconnexion</button>
+  </div>
+</nav>
+<div class="page-wrapper">
+  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:40px 2rem;text-align:center;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2rem;color:white;margin-bottom:8px;">💬 Mes <span style="color:var(--gold);">Messages</span></h1>
+    <p style="color:rgba(255,255,255,0.7);">Historique de vos commandes et échanges avec GlobalDoc.</p>
+  </div>
+
+  <div class="section" style="max-width:900px;" id="mainContent">
+    <div id="notLoggedSection" style="text-align:center;padding:60px 20px;">
+      <div style="font-size:52px;margin-bottom:16px;">🔒</div>
+      <h3 style="color:var(--navy);margin-bottom:12px;">Connectez-vous pour voir vos messages</h3>
+      <a href="compte.html" class="btn btn-primary btn-lg">👤 Se connecter</a>
+    </div>
+
+    <div id="messagesSection" style="display:none;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:20px;">Vos commandes</h3>
+      <div id="myCommandes"></div>
+    </div>
+  </div>
+</div>
+
+<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script><script src="js/sounds.js"></script><script src="js/app.js"></script>
+<script>
+const user = getSession();
+if (!user) {
+  document.getElementById('notLoggedSection').style.display = 'block';
+} else {
+  document.getElementById('notLoggedSection').style.display = 'none';
+  document.getElementById('messagesSection').style.display = 'block';
+  loadMyCommandes();
+}
+
+async function loadMyCommandes() {
+  const container = document.getElementById('myCommandes');
+  const { data: items } = await db.from('commandes').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+  if (!items || !items.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#8A95A8;"><div style="font-size:48px;margin-bottom:12px;">📭</div>Aucune commande pour le moment.<br><a href="commander.html" class="btn btn-primary" style="margin-top:16px;">📦 Passer une commande</a></div>';
+    return;
+  }
+  container.innerHTML = items.map(cmd => `
+    <div class="card" style="margin-bottom:16px;border-left:4px solid ${cmd.status === 'traite' ? 'var(--success)' : 'var(--gold)'};">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <div>
+          <span class="badge badge-navy" style="margin-right:8px;">${cmd.id}</span>
+          <strong style="color:var(--navy);">${cmd.type_label}</strong>
+        </div>
+        <span class="badge ${cmd.status === 'traite' ? 'badge-green' : 'badge-gold'}">${cmd.status === 'traite' ? '✅ Traité' : '⏳ En attente'}</span>
+      </div>
+      <p style="font-size:13px;color:#555;margin-bottom:10px;">${cmd.description}</p>
+      <p style="font-size:11px;color:#8A95A8;margin-bottom:12px;">📅 ${formatTime(cmd.created_at)}</p>
+      <button onclick="openChat('${cmd.id}')" class="btn btn-primary btn-sm">💬 Voir la discussion</button>
+    </div>
+  `).join('');
+}
+
+function openChat(orderId) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:600px;width:95%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 class="modal-title">💬 Discussion — ${orderId}</h3>
+        <button onclick="this.closest('.modal-overlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMsgs${orderId}"></div>
+        <div class="chat-input-area">
+          <input type="text" id="chatIn${orderId}" class="chat-input" placeholder="Votre message..." onkeypress="if(event.key==='Enter') sendMsg('${orderId}')">
+          <button onclick="sendMsg('${orderId}')" class="btn btn-primary" style="border-radius:24px;padding:10px 18px;">Envoyer</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const chatMsgs = document.getElementById('chatMsgs' + orderId);
+  db.from('messages').select('*').eq('commande_id', orderId).order('created_at').then(({ data }) => {
+    if (data) data.forEach(msg => {
+      const isMe = msg.sender === user.id;
+      const div = document.createElement('div');
+      div.className = `message ${isMe ? 'sent' : 'received'}`;
+      div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${isMe ? 'Vous' : msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    });
+  });
+  db.channel('chat_' + orderId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `commande_id=eq.${orderId}` }, payload => {
+      const msg = payload.new;
+      const isMe = msg.sender === user.id;
+      const div = document.createElement('div');
+      div.className = `message ${isMe ? 'sent' : 'received'}`;
+      div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${isMe ? 'Vous' : msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+      if (!isMe) Sounds.message();
+    }).subscribe();
+}
+
+async function sendMsg(orderId) {
+  const input = document.getElementById('chatIn' + orderId);
+  const text = input.value.trim();
+  if (!text || !user) return;
+  await db.from('messages').insert({ commande_id: orderId, text, sender: user.id, sender_name: user.name });
+  input.value = '';
+}
+</script>
+</body>
+</html>

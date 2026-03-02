@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" width="520" height="180">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1B2A4A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#243660;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8C36A;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#C9A84C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A8883A;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="featherGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0D080;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C9A84C;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="520" height="180" rx="16" ry="16" fill="url(#bgGrad)"/>
+
+  <!-- Subtle pattern overlay -->
+  <rect width="520" height="180" rx="16" ry="16" fill="none" stroke="#C9A84C" stroke-width="1.5" opacity="0.4"/>
+  <rect x="6" y="6" width="508" height="168" rx="12" ry="12" fill="none" stroke="#C9A84C" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- ═══ PLUME STYLISÉE ═══ -->
+  <g transform="translate(38, 22)" filter="url(#shadow)">
+    <!-- Corps principal de la plume (grande forme) -->
+    <path d="M 65,5 
+             C 85,2 105,8 110,25
+             C 115,42 108,60 95,72
+             C 80,86 60,95 45,100
+             C 30,105 15,108 8,112
+             C 4,114 2,116 3,118
+             C 4,120 7,119 12,117
+             C 25,112 50,104 68,95
+             C 88,85 105,70 112,52
+             C 120,32 115,10 95,2
+             C 85,-1 72,1 65,5 Z"
+          fill="url(#featherGrad)" opacity="0.95"/>
+
+    <!-- Nervure centrale de la plume -->
+    <path d="M 65,5 C 60,30 45,60 8,112" 
+          stroke="#A8883A" stroke-width="1.5" fill="none" opacity="0.8"/>
+
+    <!-- Barbes gauches de la plume -->
+    <path d="M 55,18 C 45,22 35,28 25,38" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 50,28 C 40,33 30,40 20,52" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 44,40 C 36,46 28,54 18,65" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 38,53 C 32,60 24,68 15,78" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 30,67 C 26,74 20,82 12,90" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <path d="M 22,81 C 18,88 14,95 9,102" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.5"/>
+
+    <!-- Barbes droites de la plume -->
+    <path d="M 72,12 C 82,16 92,22 100,32" stroke="#E8C36A" stroke-width="0.8" fill="none" opacity="0.7"/>
+    <path d="M 74,22 C 84,27 95,35 103,46" stroke="#E8C36A" stroke-width="0.8" fill="none" opacity="0.7"/>
+    <path d="M 72,34 C 82,40 92,50 98,62" stroke="#E8C36A" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 67,47 C 76,54 85,64 90,76" stroke="#E8C36A" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 60,61 C 68,68 76,78 80,90" stroke="#E8C36A" stroke-width="0.8" fill="none" opacity="0.5"/>
+
+    <!-- Pointe de la plume (calamus) -->
+    <path d="M 8,112 C 6,115 4,118 3,122 C 2,126 3,130 5,128 C 7,126 9,120 12,117 C 10,115 9,113 8,112 Z"
+          fill="#C9A84C"/>
+
+    <!-- Trait d'écriture qui sort de la pointe -->
+    <path d="M 3,122 C 0,128 -2,135 2,140 C 6,145 14,142 18,138"
+          stroke="url(#goldGrad)" stroke-width="1.8" fill="none" 
+          stroke-linecap="round" opacity="0.9"/>
+    <!-- Petite signature écrite -->
+    <path d="M 18,138 C 22,135 26,136 28,139 C 30,142 28,145 24,144"
+          stroke="#C9A84C" stroke-width="1.5" fill="none" 
+          stroke-linecap="round" opacity="0.8"/>
+
+    <!-- Reflet lumineux sur la plume -->
+    <path d="M 78,8 C 88,12 98,20 104,32 C 102,28 90,16 78,8 Z"
+          fill="white" opacity="0.15"/>
+  </g>
+
+  <!-- ═══ TEXTE DGD.CI ═══ -->
+  <g filter="url(#glow)">
+    <!-- DGD -->
+    <text x="178" y="95" 
+          font-family="Georgia, 'Times New Roman', serif" 
+          font-size="72" 
+          font-weight="bold" 
+          fill="url(#goldGrad)"
+          letter-spacing="4">DGD</text>
+    <!-- .CI en or mais plus petit et décalé -->
+    <text x="368" y="88" 
+          font-family="Georgia, 'Times New Roman', serif" 
+          font-size="38" 
+          font-weight="bold" 
+          fill="#FFFFFF"
+          opacity="0.9"
+          letter-spacing="1">.CI</text>
+  </g>
+
+  <!-- ═══ GLOBALDOC en dessous ═══ -->
+  <text x="178" y="128" 
+        font-family="'Trebuchet MS', Helvetica, sans-serif" 
+        font-size="22" 
+        font-weight="300"
+        fill="#FFFFFF"
+        opacity="0.85"
+        letter-spacing="8">GLOBALDOC</text>
+
+  <!-- Ligne décorative dorée sous GlobalDoc -->
+  <line x1="178" y1="138" x2="460" y2="138" 
+        stroke="url(#goldGrad)" stroke-width="1" opacity="0.5"/>
+
+  <!-- Slogan très petit -->
+  <text x="178" y="155" 
+        font-family="'Trebuchet MS', Helvetica, sans-serif" 
+        font-size="10.5" 
+        font-style="italic"
+        fill="#C9A84C"
+        opacity="0.8"
+        letter-spacing="2">Vos documents, notre expertise.</text>
+
+  <!-- Petit point décoratif or à gauche du slogan -->
+  <circle cx="168" cy="152" r="2.5" fill="#C9A84C" opacity="0.6"/>
+</svg>

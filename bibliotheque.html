@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bibliothèque PDF — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="services.html">📋 Services</a></li>
+    <li><a href="commander.html">📦 Commander</a></li>
+    <li><a href="bibliotheque.html" class="active">📚 Bibliothèque</a></li>
+    <li><a href="communaute.html">🗨️ Communauté</a></li>
+    <li><a href="messagerie.html" data-auth="logged">💬 Messages</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <a href="compte.html" class="btn btn-outline btn-sm" data-auth="guest">👤 Connexion</a>
+    <button onclick="logout()" class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;" data-auth="logged">Déconnexion</button>
+  </div>
+</nav>
+<div class="page-wrapper">
+  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:60px 2rem;text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;">📚</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.5rem;color:white;margin-bottom:12px;">Bibliothèque <span style="color:var(--gold);">PDF Gratuite</span></h1>
+    <p style="color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto;">Documents mis à disposition gratuitement par GlobalDoc. Téléchargez librement et informez-vous.</p>
+  </div>
+
+  <!-- Demande de PDF spécifique -->
+  <div style="background:white;padding:36px 2rem;border-bottom:2px solid var(--gray);">
+    <div style="max-width:700px;margin:0 auto;text-align:center;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:10px;">Vous cherchez un document spécifique ?</h3>
+      <p style="color:#8A95A8;margin-bottom:20px;font-size:14px;">Écrivez-nous votre demande. Nous vérifierons si nous pouvons vous le fournir, parfois avec un tarif selon le document.</p>
+      <div style="display:flex;gap:10px;max-width:500px;margin:0 auto;flex-wrap:wrap;">
+        <input type="text" id="pdfRequest" class="form-control" placeholder="Ex: Guide de rédaction administrative..." style="flex:1;">
+        <button onclick="sendPdfRequest()" class="btn btn-primary">📨 Demander</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Documents <span>disponibles</span></h2>
+    <div class="section-divider"></div>
+    <div id="pdfGrid" class="grid-3" style="margin-top:24px;">
+      <div style="text-align:center;color:#8A95A8;padding:40px;grid-column:1/-1;">
+        <div style="font-size:48px;margin-bottom:12px;">📂</div>
+        Chargement de la bibliothèque...
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script><script src="js/sounds.js"></script><script src="js/app.js"></script>
+<script>
+const user = getSession();
+
+async function loadPdfs() {
+  const grid = document.getElementById('pdfGrid');
+  const { data: items, error } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false });
+  if (error || !items || !items.length) {
+    grid.innerHTML = '<div style="text-align:center;color:#8A95A8;padding:40px;grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">📭</div>Aucun document disponible pour le moment. Revenez bientôt !</div>';
+    return;
+  }
+  grid.innerHTML = items.map(p => `
+    <div class="card observe-animate" style="border-top:4px solid var(--navy);text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">📄</div>
+      <h4 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:8px;">${p.titre}</h4>
+      <p style="font-size:13px;color:#8A95A8;margin-bottom:16px;line-height:1.5;">${p.description || 'Document mis à disposition par GlobalDoc.'}</p>
+      <p style="font-size:11px;color:#aaa;margin-bottom:16px;">📅 ${formatTime(p.created_at)}</p>
+      <a href="${p.url}" target="_blank" class="btn btn-primary" style="width:100%;">📥 Télécharger gratuitement</a>
+    </div>
+  `).join('');
+}
+loadPdfs();
+
+async function sendPdfRequest() {
+  const req = document.getElementById('pdfRequest').value.trim();
+  if (!req) { showToast('Décrivez le document que vous recherchez.', 'error'); return; }
+  const userName = user?.name || 'Visiteur';
+  await db.from('demandes_pdf').insert({ demande: req, user_name: userName });
+  redirectWhatsApp(`Bonjour GlobalDoc\n\nJe cherche un document PDF :\n"${req}"\n\nPouvez-vous m'aider ?\n\n${userName}`);
+  document.getElementById('pdfRequest').value = '';
+  showToast('Demande envoyée ! Redirection vers WhatsApp...', 'success');
+}
+</script>
+</body>
+</html>

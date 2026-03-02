@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communauté — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="services.html">📋 Services</a></li>
+    <li><a href="commander.html">📦 Commander</a></li>
+    <li><a href="bibliotheque.html">📚 Bibliothèque</a></li>
+    <li><a href="communaute.html" class="active">🗨️ Communauté</a></li>
+    <li><a href="messagerie.html" data-auth="logged">💬 Messages</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <a href="compte.html" class="btn btn-outline btn-sm" data-auth="guest">👤 Connexion</a>
+    <button onclick="logout()" class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;" data-auth="logged">Déconnexion</button>
+  </div>
+</nav>
+<div class="page-wrapper">
+  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:48px 2rem;text-align:center;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:white;margin-bottom:10px;">🗨️ <span style="color:var(--gold);">Communauté</span> GlobalDoc</h1>
+    <p style="color:rgba(255,255,255,0.7);">Échangez, posez vos questions, partagez vos expériences.</p>
+  </div>
+
+  <div class="section" style="max-width:800px;">
+
+    <!-- Publier un commentaire -->
+    <div class="card" style="margin-bottom:32px;border-top:4px solid var(--gold);">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">✏️ Laisser un message</h3>
+      <div id="notLoggedMsg" style="display:none;text-align:center;padding:16px;background:rgba(201,168,76,0.1);border-radius:10px;border:2px solid var(--gold);">
+        <p style="margin-bottom:12px;">Connectez-vous pour participer à la communauté.</p>
+        <a href="compte.html" class="btn btn-primary btn-sm">👤 Se connecter</a>
+      </div>
+      <div id="commentForm">
+        <div class="form-group">
+          <textarea id="commentText" class="form-control" rows="3" placeholder="Partagez votre expérience, posez une question..."></textarea>
+        </div>
+        <button onclick="postComment()" class="btn btn-primary">💬 Publier</button>
+      </div>
+    </div>
+
+    <!-- Commentaires -->
+    <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:20px;">💬 Échanges de la communauté</h3>
+    <div id="commentsList"></div>
+  </div>
+</div>
+
+<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script><script src="js/sounds.js"></script><script src="js/app.js"></script>
+<script>
+const user = getSession();
+if (!user) {
+  document.getElementById('notLoggedMsg').style.display = 'block';
+  document.getElementById('commentForm').style.display = 'none';
+}
+
+async function postComment() {
+  if (!user) { showToast('Connectez-vous d\'abord.', 'error'); return; }
+  const text = document.getElementById('commentText').value.trim();
+  if (!text) { showToast('Écrivez quelque chose !', 'error'); return; }
+  await db.from('communaute').insert({ text, user_id: user.id, user_name: user.name });
+  document.getElementById('commentText').value = '';
+  showToast('Message publié !', 'success');
+}
+
+async function loadComments() {
+  const list = document.getElementById('commentsList');
+  const { data: items } = await db.from('communaute').select('*').order('created_at', { ascending: false });
+  if (!items || !items.length) {
+    list.innerHTML = '<p style="color:#8A95A8;text-align:center;padding:30px;">Soyez le premier à laisser un message !</p>';
+    return;
+  }
+  list.innerHTML = items.map(c => `
+    <div class="card" style="margin-bottom:16px;animation:fadeInUp 0.4s ease;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;">${c.user_name.charAt(0).toUpperCase()}</div>
+          <div>
+            <strong style="color:var(--navy);">${c.user_name}</strong>
+            <div style="font-size:11px;color:#8A95A8;">${formatTime(c.created_at)}</div>
+          </div>
+        </div>
+        ${user && (user.id === c.user_id || isAdmin(user)) ? `<button onclick="deleteComment(${c.id})" class="btn btn-danger btn-sm">🗑️</button>` : ''}
+      </div>
+      <p style="font-size:14px;color:var(--text);line-height:1.6;">${c.text}</p>
+    </div>
+  `).join('');
+}
+loadComments();
+
+async function deleteComment(id) {
+  if (!confirm('Supprimer ce commentaire ?')) return;
+  await db.from('communaute').delete().eq('id', id);
+  showToast('Commentaire supprimé.', 'success');
+  loadComments();
+}
+</script>
+</body>
+</html>

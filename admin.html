@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo">
+    <div class="logo-text">
+      <span class="dgd">DGD<span>.CI</span></span>
+      <span class="globaldoc">GlobalDoc</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="admin.html" class="active">⚙️ Admin</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <button onclick="logout()" class="btn btn-sm" style="background:var(--danger);color:white;">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:36px 2rem;text-align:center;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);">⚙️ Tableau de Bord Admin</h1>
+    <p style="color:rgba(255,255,255,0.7);margin-top:8px;">Bienvenue, Djeket Bogui Joël — Accès total</p>
+  </div>
+
+  <!-- STATS RAPIDES -->
+  <div class="section" style="max-width:1200px;">
+    <div class="grid-4" id="statsCards">
+      <div class="card" style="text-align:center;border-top:4px solid var(--gold);">
+        <div style="font-size:36px;font-weight:900;color:var(--gold);" id="statUsers">—</div>
+        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">Utilisateurs inscrits</div>
+      </div>
+      <div class="card" style="text-align:center;border-top:4px solid var(--success);">
+        <div style="font-size:36px;font-weight:900;color:var(--success);" id="statOnline">—</div>
+        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">En ligne maintenant</div>
+      </div>
+      <div class="card" style="text-align:center;border-top:4px solid #2E86AB;">
+        <div style="font-size:36px;font-weight:900;color:#2E86AB;" id="statCommandes">—</div>
+        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">Commandes reçues</div>
+      </div>
+      <div class="card" style="text-align:center;border-top:4px solid var(--navy);">
+        <div style="font-size:36px;font-weight:900;color:var(--navy);" id="statPdfs">—</div>
+        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">PDFs en bibliothèque</div>
+      </div>
+    </div>
+
+    <!-- ONGLETS ADMIN -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:32px 0 20px;">
+      <button onclick="showTab('users')" class="btn btn-navy" id="tab-users">👥 Utilisateurs</button>
+      <button onclick="showTab('commandes')" class="btn btn-outline" id="tab-commandes">📦 Commandes</button>
+      <button onclick="showTab('annonces')" class="btn btn-outline" id="tab-annonces">📢 Annonces</button>
+      <button onclick="showTab('videos')" class="btn btn-outline" id="tab-videos">🎬 Vidéos</button>
+      <button onclick="showTab('pdfs')" class="btn btn-outline" id="tab-pdfs">📚 Bibliothèque PDF</button>
+    </div>
+
+    <!-- ═══ ONGLET UTILISATEURS ═══ -->
+    <div id="panel-users">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">👥 Tous les utilisateurs</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Code</th>
+              <th>Statut</th>
+              <th>Inscrit le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"><tr><td colspan="6" style="text-align:center;color:#8A95A8;">Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ ONGLET COMMANDES ═══ -->
+    <div id="panel-commandes" style="display:none;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">📦 Commandes en temps réel</h3>
+      <div id="commandesList"></div>
+    </div>
+
+    <!-- ═══ ONGLET ANNONCES ═══ -->
+    <div id="panel-annonces" style="display:none;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">📢 Publier une annonce</h3>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="form-group">
+          <label class="form-label">Titre de l'annonce</label>
+          <input type="text" id="annonceTitle" class="form-control" placeholder="Ex: Promotion de la rentrée !">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contenu</label>
+          <textarea id="annonceContent" class="form-control" rows="4" placeholder="Contenu de votre annonce..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Image (optionnel)</label>
+          <input type="url" id="annonceImage" class="form-control" placeholder="https://...">
+        </div>
+        <button onclick="publishAnnonce()" class="btn btn-primary">📢 Publier l'annonce</button>
+      </div>
+
+      <h4 style="color:var(--navy);margin-bottom:12px;">Annonces publiées</h4>
+      <div id="annoncesList" class="grid-3"></div>
+    </div>
+
+    <!-- ═══ ONGLET VIDÉOS ═══ -->
+    <div id="panel-videos" style="display:none;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">🎬 Publier une vidéo</h3>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="form-group">
+          <label class="form-label">Titre de la vidéo</label>
+          <input type="text" id="videoTitle" class="form-control" placeholder="Ex: Présentation de GlobalDoc">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL YouTube (format embed)</label>
+          <input type="url" id="videoUrl" class="form-control" placeholder="https://www.youtube.com/embed/XXXXXXXXX">
+          <p style="font-size:11px;color:#8A95A8;margin-top:4px;">Sur YouTube : Partager → Intégrer → copier le lien src</p>
+        </div>
+        <button onclick="publishVideo()" class="btn btn-primary">🎬 Publier la vidéo</button>
+      </div>
+      <div id="videosList" class="grid-3"></div>
+    </div>
+
+    <!-- ═══ ONGLET PDFS ═══ -->
+    <div id="panel-pdfs" style="display:none;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">📚 Ajouter un PDF à la bibliothèque</h3>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="form-group">
+          <label class="form-label">Titre du document</label>
+          <input type="text" id="pdfTitle" class="form-control" placeholder="Ex: Guide de rédaction de CV">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description courte</label>
+          <input type="text" id="pdfDesc" class="form-control" placeholder="Ex: Un guide complet pour rédiger un CV parfait.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fichier PDF</label>
+          <input type="file" id="pdfFile" accept=".pdf" class="form-control">
+        </div>
+        <div id="uploadProgress" style="display:none;margin-bottom:12px;">
+          <div style="background:#E0E4ED;border-radius:8px;height:8px;overflow:hidden;">
+            <div id="progressBar" style="width:0%;height:100%;background:var(--gold);transition:width 0.3s;border-radius:8px;"></div>
+          </div>
+          <p style="font-size:12px;color:#8A95A8;margin-top:4px;" id="progressText">0%</p>
+        </div>
+        <button onclick="uploadPdf()" class="btn btn-primary">📤 Uploader le PDF</button>
+      </div>
+
+      <h4 style="color:var(--navy);margin-bottom:12px;">PDFs en bibliothèque</h4>
+      <div id="adminPdfList" class="grid-3"></div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/sounds.js"></script>
+<script src="js/app.js"></script>
+<script>
+
+// Vérifier accès admin
+const adminUser = getSession();
+if (!adminUser || !isAdmin(adminUser)) {
+  window.location.href = 'index.html';
+}
+
+function showTab(tab) {
+  ['users','commandes','annonces','videos','pdfs'].forEach(t => {
+    document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById(`tab-${t}`);
+    if (btn) {
+      btn.className = t === tab ? 'btn btn-navy' : 'btn btn-outline';
+    }
+  });
+  Sounds.click();
+  if (tab === 'users') loadUsers();
+  if (tab === 'commandes') loadCommandes();
+  if (tab === 'annonces') loadAnnonces();
+  if (tab === 'videos') loadVideos();
+  if (tab === 'pdfs') loadPdfs();
+}
+
+// ── STATS ──────────────────────────────────────────────
+async function loadStats() {
+  const { data: users } = await db.from('users').select('id, online');
+  const { count: cmdCount } = await db.from('commandes').select('*', { count: 'exact', head: true });
+  const { count: pdfCount } = await db.from('bibliotheque').select('*', { count: 'exact', head: true });
+  const total = users ? users.length : 0;
+  const online = users ? users.filter(u => u.online).length : 0;
+  document.getElementById('statUsers').textContent = total;
+  if (document.getElementById('statOnline')) document.getElementById('statOnline').textContent = online;
+  document.getElementById('statCommandes').textContent = cmdCount || 0;
+  document.getElementById('statPdfs').textContent = pdfCount || 0;
+}
+loadStats();
+
+// ── UTILISATEURS ──────────────────────────────────────
+async function loadUsers() {
+  const tbody = document.getElementById('usersTable');
+  const { data: items } = await db.from('users').select('*').order('created_at', { ascending: false });
+  if (!items || !items.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#8A95A8;padding:20px;">Aucun utilisateur inscrit.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(u => `
+    <tr>
+      <td><strong>${u.name}</strong></td>
+      <td><code style="background:#f0f4ff;padding:3px 8px;border-radius:6px;">${u.id}</code></td>
+      <td><span style="color:${u.online ? 'var(--success)' : '#8A95A8'};">${u.online ? '🟢 En ligne' : '⚫ Hors ligne'}</span></td>
+      <td>${formatTime(u.created_at)}</td>
+      <td><button onclick="deleteUser('${u.id}')" class="btn btn-danger btn-sm">🗑️</button></td>
+    </tr>
+  `).join('');
+}
+
+async function deleteUser(id, name) {
+  if (!confirm(`Supprimer l'utilisateur "${name}" ?`)) return;
+  await db.from('users').delete().eq('id', id);
+  showToast(`Utilisateur "${name}" supprimé.`, 'success');
+  loadUsers();
+}
+
+// ── COMMANDES ──────────────────────────────────────────
+async function loadCommandes() {
+  const container = document.getElementById('commandesList');
+  const { data: items } = await db.from('commandes').select('*').order('created_at', { ascending: false });
+  if (!items || !items.length) {
+    container.innerHTML = '<p style="color:#8A95A8;text-align:center;">Aucune commande.</p>';
+    return;
+  }
+  container.innerHTML = items.map(cmd => `
+    <div class="card" style="margin-bottom:16px;border-left:4px solid ${cmd.status==='en_attente'?'var(--gold)':'var(--success)};">
+      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
+        <div>
+          <span class="badge badge-navy" style="margin-right:8px;">${cmd.id}</span>
+          <strong style="color:var(--navy);">${cmd.type_label}</strong>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="badge ${cmd.status==='en_attente'?'badge-gold':'badge-green'}">${cmd.status === 'en_attente' ? '⏳ En attente' : '✅ Traité'}</span>
+          <button onclick="toggleStatus('${cmd.id}','${cmd.status}')" class="btn btn-sm btn-outline">Changer statut</button>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:13px;color:#555;">${cmd.description}</p>
+      <p style="font-size:11px;color:#8A95A8;margin-top:6px;">👤 ${cmd.user_name} — 📅 ${formatTime(cmd.created_at)}</p>
+      <div style="margin-top:12px;">
+        <button onclick="openCommandeChat('${cmd.id}','${cmd.user_name}')" class="btn btn-primary btn-sm">💬 Répondre</button>
+        <button onclick="redirectWhatsApp('Bonjour ${cmd.user_name}, concernant votre commande ${cmd.id}...')" class="btn btn-sm" style="background:#25D366;color:white;margin-left:8px;">💬 WhatsApp</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function toggleStatus(id, current) {
+  const newStatus = current === 'en_attente' ? 'traite' : 'en_attente';
+  await db.from('commandes').update({ status: newStatus }).eq('id', id);
+  showToast('Statut mis à jour.', 'success');
+  loadCommandes();
+}
+
+function openCommandeChat(orderId, clientName) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:600px;width:95%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 class="modal-title">💬 Chat avec ${clientName}</h3>
+        <button onclick="this.closest('.modal-overlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="adminChatMessages"></div>
+        <div class="chat-input-area">
+          <input type="text" id="adminChatInput" class="chat-input" placeholder="Votre réponse..." onkeypress="if(event.key==='Enter') adminSendMessage('${orderId}')">
+          <button onclick="adminSendMessage('${orderId}')" class="btn btn-primary" style="border-radius:24px;padding:10px 20px;">Envoyer</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const chatMsgs = document.getElementById('adminChatMessages');
+  db.from('messages').select('*').eq('commande_id', orderId).order('created_at').then(({ data }) => {
+    if (data) data.forEach(msg => {
+      const isAdm = msg.sender === 'admin';
+      const div = document.createElement('div');
+      div.className = `message ${isAdm ? 'sent' : 'received'}`;
+      div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    });
+  });
+  db.channel('admin_' + orderId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `commande_id=eq.${orderId}` }, payload => {
+      const msg = payload.new;
+      const isAdm = msg.sender === 'admin';
+      const div = document.createElement('div');
+      div.className = `message ${isAdm ? 'sent' : 'received'}`;
+      div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
+      chatMsgs.appendChild(div);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+      Sounds.message();
+    }).subscribe();
+}
+
+async function adminSendMessage(orderId) {
+  const input = document.getElementById('adminChatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  await db.from('messages').insert({ commande_id: orderId, text, sender: 'admin', sender_name: 'GlobalDoc' });
+  input.value = '';
+  Sounds.click();
+}
+
+// ── ANNONCES ──────────────────────────────────────────
+async function publishAnnonce() {
+  const titre = document.getElementById('annonceTitle').value.trim();
+  const contenu = document.getElementById('annonceContent').value.trim();
+  const image = document.getElementById('annonceImage').value.trim();
+  if (!titre || !contenu) { showToast('Remplissez le titre et le contenu.', 'error'); return; }
+  await db.from('annonces').insert({ titre, contenu, image });
+  document.getElementById('annonceTitle').value = '';
+  document.getElementById('annonceContent').value = '';
+  document.getElementById('annonceImage').value = '';
+  showToast('Annonce publiée !', 'success');
+  loadAnnonces();
+}
+
+async function loadAnnonces() {
+  const container = document.getElementById('annoncesList');
+  const { data: items } = await db.from('annonces').select('*').order('created_at', { ascending: false });
+  if (!items || !items.length) { container.innerHTML = '<p style="color:#8A95A8;">Aucune annonce.</p>'; return; }
+  container.innerHTML = items.map(a => `
+    <div class="card" style="border-left:4px solid var(--gold);">
+      ${a.image ? `<img src="${a.image}" style="width:100%;border-radius:8px;margin-bottom:10px;max-height:140px;object-fit:cover;">` : ''}
+      <h4 style="color:var(--navy);margin-bottom:8px;">${a.titre}</h4>
+      <p style="font-size:13px;color:#555;">${a.contenu}</p>
+      <p style="font-size:11px;color:#8A95A8;margin-top:8px;">📅 ${formatTime(a.created_at)}</p>
+      <button onclick="deleteAnnonce(${a.id})" class="btn btn-danger btn-sm" style="margin-top:10px;">🗑️ Supprimer</button>
+    </div>
+  `).join('');
+}
+
+async function deleteAnnonce(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  await db.from('annonces').delete().eq('id', id);
+  showToast('Annonce supprimée.', 'success');
+  loadAnnonces();
+}
+
+// ── VIDÉOS ────────────────────────────────────────────
+async function publishVideo() {
+  const titre = document.getElementById('videoTitle').value.trim();
+  const url = document.getElementById('videoUrl').value.trim();
+  if (!titre || !url) { showToast('Remplissez tous les champs.', 'error'); return; }
+  await db.from('videos').insert({ titre, url });
+  document.getElementById('videoTitle').value = '';
+  document.getElementById('videoUrl').value = '';
+  showToast('Vidéo publiée !', 'success');
+  loadVideos();
+}
+
+async function loadVideos() {
+  const container = document.getElementById('videosList');
+  const { data: items } = await db.from('videos').select('*').order('created_at', { ascending: false });
+  if (!items || !items.length) { container.innerHTML = '<p style="color:#8A95A8;">Aucune vidéo.</p>'; return; }
+  container.innerHTML = items.map(v => `
+    <div class="card">
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:10px;">
+        <iframe src="${v.url}" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allowfullscreen></iframe>
+      </div>
+      <h4 style="color:var(--navy);">${v.titre}</h4>
+      <button onclick="deleteVideo(${v.id})" class="btn btn-danger btn-sm" style="margin-top:10px;">🗑️ Supprimer</button>
+    </div>
+  `).join('');
+}
+
+async function deleteVideo(id) {
+  if (!confirm('Supprimer cette vidéo ?')) return;
+  await db.from('videos').delete().eq('id', id);
+  showToast('Vidéo supprimée.', 'success');
+  loadVideos();
+}
+
+// ── PDFs ──────────────────────────────────────────────
+async function uploadPdf() {
+  const titre = document.getElementById('pdfTitle').value.trim();
+  const desc = document.getElementById('pdfDesc').value.trim();
+  const file = document.getElementById('pdfFile').files[0];
+  if (!titre || !file) { showToast('Titre et fichier PDF requis.', 'error'); return; }
+
+  const progressWrap = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  progressWrap.style.display = 'block';
+  progressBar.style.width = '30%';
+  progressText.textContent = 'Envoi en cours...';
+
+  try {
+    const fileName = Date.now() + '_' + file.name.replace(/\s/g, '_');
+    const { data, error } = await db.storage.from('bibliotheque').upload(fileName, file);
+    if (error) throw error;
+
+    progressBar.style.width = '80%';
+    progressText.textContent = '80%';
+
+    const { data: urlData } = db.storage.from('bibliotheque').getPublicUrl(fileName);
+    const url = urlData.publicUrl;
+
+    await db.from('bibliotheque').insert({ titre, description: desc, url, size: file.size });
+
+    progressBar.style.width = '100%';
+    progressText.textContent = '100%';
+    showToast('PDF ajouté à la bibliothèque !', 'success');
+    document.getElementById('pdfTitle').value = '';
+    document.getElementById('pdfDesc').value = '';
+    document.getElementById('pdfFile').value = '';
+    setTimeout(() => { progressWrap.style.display = 'none'; }, 1000);
+    loadPdfs();
+  } catch(e) {
+    showToast('Erreur upload : ' + e.message, 'error');
+    progressWrap.style.display = 'none';
+  }
+}
+
+async function loadPdfs() {
+  const container = document.getElementById('adminPdfList');
+  const { data: items } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false });
+  if (!items || !items.length) {
+    container.innerHTML = '<p style="color:#8A95A8;">Aucun PDF.</p>';
+    return;
+  }
+  container.innerHTML = items.map(p => `
+    <div class="card" style="border-top:4px solid var(--navy);">
+      <div style="font-size:36px;margin-bottom:10px;">📄</div>
+      <h4 style="color:var(--navy);margin-bottom:6px;">${p.titre}</h4>
+      <p style="font-size:12px;color:#8A95A8;margin-bottom:10px;">${p.description || ''}</p>
+      <p style="font-size:11px;color:#8A95A8;">📅 ${formatTime(p.created_at)}</p>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+        <a href="${p.url}" target="_blank" class="btn btn-navy btn-sm">👁️ Voir</a>
+        <button onclick="deletePdf(${p.id},'${p.url}')" class="btn btn-danger btn-sm">🗑️ Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deletePdf(id, url) {
+  if (!confirm('Supprimer ce PDF ?')) return;
+  await db.from('bibliotheque').delete().eq('id', id);
+  // Supprimer le fichier du storage
+  try {
+    const fileName = url.split('/').pop();
+    await db.storage.from('bibliotheque').remove([fileName]);
+  } catch(e) {}
+  showToast('PDF supprimé.', 'success');
+  loadPdfs();
+}
+
+// Charger utilisateurs par défaut
+loadUsers();
+</script>
+
+</body>
+</html>

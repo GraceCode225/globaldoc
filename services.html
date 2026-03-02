@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="services.html" class="active">📋 Services</a></li>
+    <li><a href="tarifs.html">💰 Tarifs</a></li>
+    <li><a href="commander.html">📦 Commander</a></li>
+    <li><a href="bibliotheque.html">📚 Bibliothèque</a></li>
+    <li><a href="communaute.html">🗨️ Communauté</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <a href="compte.html" class="btn btn-outline btn-sm" data-auth="guest">👤 Connexion</a>
+  </div>
+</nav>
+<div class="page-wrapper">
+  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:60px 2rem;text-align:center;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.5rem;color:white;margin-bottom:12px;">Nos <span style="color:var(--gold);">Services</span></h1>
+    <p style="color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto;">Tout ce dont vous avez besoin en bureautique, en un seul endroit. Qualité professionnelle, tarifs accessibles.</p>
+  </div>
+
+  <div class="section">
+    <div style="background:rgba(201,168,76,0.1);border:2px solid var(--gold);border-radius:14px;padding:20px;margin-bottom:40px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:32px;">✅</div>
+      <div>
+        <strong style="color:var(--navy);">Révision gratuite incluse sur chaque commande</strong>
+        <p style="font-size:13px;color:#555;margin-top:4px;">Si le document livré ne vous convient pas entièrement, nous le retravaillons sans frais supplémentaires.</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">📄 CV & <span>Rédaction</span></h2>
+    <div class="section-divider"></div>
+    <div class="grid-3" style="margin-bottom:48px;">
+      <div class="card observe-animate"><div class="card-icon">📄</div><h4 class="card-title">CV Professionnel</h4><p class="card-desc">Création d'un CV moderne, percutant et adapté à votre secteur. Mise en forme soignée avec Word ou Canva.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">1 000 F</span><a href="commander.html?type=cv" class="btn btn-primary btn-sm">Commander →</a></div></div>
+      <div class="card observe-animate delay-1"><div class="card-icon">✉️</div><h4 class="card-title">Lettre de motivation</h4><p class="card-desc">Lettre personnalisée, convaincante et adaptée à l'offre d'emploi visée. Style professionnel garanti.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">500 F</span><a href="commander.html?type=cv" class="btn btn-primary btn-sm">Commander →</a></div></div>
+      <div class="card observe-animate delay-2"><div class="card-icon">🎯</div><h4 class="card-title">Pack CV + Lettre</h4><p class="card-desc">Combinaison idéale pour une candidature complète et cohérente. CV + lettre de motivation assortis.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">1 300 F</span><a href="commander.html?type=cv" class="btn btn-primary btn-sm">Commander →</a></div></div>
+    </div>
+
+    <h2 class="section-title">💼 <span>Bureautique</span></h2>
+    <div class="section-divider"></div>
+    <div class="grid-3" style="margin-bottom:48px;">
+      <div class="card observe-animate"><div class="card-icon">📝</div><h4 class="card-title">Documents Word</h4><p class="card-desc">Création, modification, mise en forme de tout type de document Word. Rapports, courriers, contrats...</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">500 – 3 000 F</span><a href="commander.html?type=bureautique" class="btn btn-primary btn-sm">Commander →</a></div></div>
+      <div class="card observe-animate delay-1"><div class="card-icon">📊</div><h4 class="card-title">Tableaux Excel</h4><p class="card-desc">Création de tableaux de bord, calculs, formules, bases de données et graphiques Excel professionnels.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">1 500 – 3 000 F</span><a href="commander.html?type=bureautique" class="btn btn-primary btn-sm">Commander →</a></div></div>
+      <div class="card observe-animate delay-2"><div class="card-icon">📽️</div><h4 class="card-title">Présentations PowerPoint</h4><p class="card-desc">Diaporamas professionnels et visuellement attractifs pour vos réunions, formations et présentations.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">1 000 – 3 000 F</span><a href="commander.html?type=bureautique" class="btn btn-primary btn-sm">Commander →</a></div></div>
+    </div>
+
+    <h2 class="section-title">🎓 Aide aux <span>Étudiants</span></h2>
+    <div class="section-divider"></div>
+    <div class="grid-3" style="margin-bottom:48px;">
+      <div class="card observe-animate"><div class="card-icon">📚</div><h4 class="card-title">Mémoire & Thèse</h4><p class="card-desc">Mise en forme complète de mémoire ou thèse : pagination, table des matières, mise en page conforme.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">3 000 – 8 000 F</span><a href="commander.html?type=etudiant" class="btn btn-primary btn-sm">Commander →</a></div></div>
+      <div class="card observe-animate delay-1"><div class="card-icon">📋</div><h4 class="card-title">Exposé & Rapport de stage</h4><p class="card-desc">Structuration et mise en page de vos exposés et rapports de stage selon les normes académiques.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">1 000 – 2 000 F</span><a href="commander.html?type=etudiant" class="btn btn-primary btn-sm">Commander →</a></div></div>
+      <div class="card observe-animate delay-2"><div class="card-icon">🎤</div><h4 class="card-title">Présentation Soutenance</h4><p class="card-desc">PowerPoint professionnel pour votre soutenance de mémoire. Design soigné qui impressionne le jury.</p><div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><span class="badge badge-gold">1 500 – 3 000 F</span><a href="commander.html?type=etudiant" class="btn btn-primary btn-sm">Commander →</a></div></div>
+    </div>
+
+    <h2 class="section-title">🎨 Affiches & <span>Visuels</span></h2>
+    <div class="section-divider"></div>
+    <div class="grid-4">
+      <div class="card observe-animate"><div class="card-icon">🖼️</div><h4 class="card-title">Flyer & Affiche</h4><p class="card-desc">Affiches publicitaires attractives pour vos événements et promotions.</p><div style="margin-top:16px;"><span class="badge badge-gold">1 000 – 2 000 F</span></div><a href="commander.html?type=affiche" class="btn btn-primary btn-sm" style="margin-top:12px;">Commander →</a></div>
+      <div class="card observe-animate delay-1"><div class="card-icon">📱</div><h4 class="card-title">Bannière Réseaux</h4><p class="card-desc">Bannières optimisées pour Facebook, Instagram, WhatsApp.</p><div style="margin-top:16px;"><span class="badge badge-gold">1 000 – 1 500 F</span></div><a href="commander.html?type=affiche" class="btn btn-primary btn-sm" style="margin-top:12px;">Commander →</a></div>
+      <div class="card observe-animate delay-2"><div class="card-icon">💳</div><h4 class="card-title">Carte de visite</h4><p class="card-desc">Carte de visite professionnelle à votre image.</p><div style="margin-top:16px;"><span class="badge badge-gold">1 000 F</span></div><a href="commander.html?type=affiche" class="btn btn-primary btn-sm" style="margin-top:12px;">Commander →</a></div>
+      <div class="card observe-animate delay-3"><div class="card-icon">🎪</div><h4 class="card-title">Autre visuel</h4><p class="card-desc">Tout autre besoin visuel sur mesure.</p><div style="margin-top:16px;"><span class="badge badge-navy">Sur devis</span></div><a href="commander.html?type=affiche" class="btn btn-primary btn-sm" style="margin-top:12px;">Commander →</a></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-bottom" style="max-width:1200px;margin:0 auto;">
+    <span>© 2025 <a href="licence.html">DGD.CI — GlobalDoc</a>. Tous droits réservés.</span>
+  </div>
+</footer>
+<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script><script src="js/sounds.js"></script><script src="js/app.js"></script>
+</body>
+</html>

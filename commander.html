@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commander — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo">
+    <div class="logo-text">
+      <span class="dgd">DGD<span>.CI</span></span>
+      <span class="globaldoc">GlobalDoc</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="services.html">📋 Services</a></li>
+    <li><a href="tarifs.html">💰 Tarifs</a></li>
+    <li><a href="commander.html">📦 Commander</a></li>
+    <li><a href="bibliotheque.html">📚 Bibliothèque</a></li>
+    <li><a href="communaute.html">🗨️ Communauté</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <a href="compte.html" class="btn btn-outline btn-sm" data-auth="guest">👤 Connexion</a>
+    <button onclick="logout()" class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;" data-auth="logged">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- HERO PETIT -->
+  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:48px 2rem 36px;text-align:center;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:white;margin-bottom:10px;">
+      📦 Passer une <span style="color:var(--gold);">Commande</span>
+    </h1>
+    <p style="color:rgba(255,255,255,0.7);">Choisissez votre type de document, décrivez votre besoin et discutez en temps réel.</p>
+  </div>
+
+  <div class="section" style="max-width:900px;">
+
+    <!-- ÉTAPE 1 : Choisir le type -->
+    <div id="step1">
+      <h2 class="section-title">Étape 1 — <span>Choisissez votre document</span></h2>
+      <div class="section-divider"></div>
+      <p class="section-subtitle">Cliquez sur le type de document dont vous avez besoin.</p>
+
+      <div class="grid-3" style="margin-top:24px;">
+        <div class="card" onclick="selectType('cv','📄 CV & Lettre de motivation')" style="cursor:pointer;text-align:center;border:2px solid transparent;" id="type-cv">
+          <div style="font-size:40px;margin-bottom:12px;">📄</div>
+          <h4 class="card-title">CV & Lettre</h4>
+          <p class="card-desc">CV professionnel, lettre de motivation, pack complet.</p>
+          <div style="margin-top:12px;"><span class="badge badge-gold">500 – 1 300 F</span></div>
+        </div>
+        <div class="card" onclick="selectType('bureautique','💼 Document Bureautique')" style="cursor:pointer;text-align:center;border:2px solid transparent;" id="type-bureautique">
+          <div style="font-size:40px;margin-bottom:12px;">💼</div>
+          <h4 class="card-title">Bureautique</h4>
+          <p class="card-desc">Word, Excel, PowerPoint — création ou modification.</p>
+          <div style="margin-top:12px;"><span class="badge badge-gold">500 – 3 000 F</span></div>
+        </div>
+        <div class="card" onclick="selectType('etudiant','🎓 Aide Étudiant')" style="cursor:pointer;text-align:center;border:2px solid transparent;" id="type-etudiant">
+          <div style="font-size:40px;margin-bottom:12px;">🎓</div>
+          <h4 class="card-title">Aide Étudiant</h4>
+          <p class="card-desc">Mémoire, thèse, exposé, rapport de stage, soutenance.</p>
+          <div style="margin-top:12px;"><span class="badge badge-gold">1 000 – 8 000 F</span></div>
+        </div>
+        <div class="card" onclick="selectType('affiche','🎨 Affiche & Visuel')" style="cursor:pointer;text-align:center;border:2px solid transparent;" id="type-affiche">
+          <div style="font-size:40px;margin-bottom:12px;">🎨</div>
+          <h4 class="card-title">Affiche & Visuel</h4>
+          <p class="card-desc">Flyer, affiche, bannière réseaux sociaux, carte de visite.</p>
+          <div style="margin-top:12px;"><span class="badge badge-gold">1 000 – 2 000 F</span></div>
+        </div>
+        <div class="card" onclick="selectType('rapport','📝 Rapport & Courrier')" style="cursor:pointer;text-align:center;border:2px solid transparent;" id="type-rapport">
+          <div style="font-size:40px;margin-bottom:12px;">📝</div>
+          <h4 class="card-title">Rapport & Courrier</h4>
+          <p class="card-desc">Rapport professionnel, compte-rendu, courrier officiel.</p>
+          <div style="margin-top:12px;"><span class="badge badge-gold">1 000 – 3 000 F</span></div>
+        </div>
+        <div class="card" onclick="selectType('autre','🔧 Autre demande')" style="cursor:pointer;text-align:center;border:2px solid transparent;" id="type-autre">
+          <div style="font-size:40px;margin-bottom:12px;">🔧</div>
+          <h4 class="card-title">Autre demande</h4>
+          <p class="card-desc">Un besoin spécifique non listé ? Décrivez-le nous.</p>
+          <div style="margin-top:12px;"><span class="badge badge-navy">Sur devis</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : Décrire le besoin + Chat -->
+    <div id="step2" style="display:none;margin-top:40px;animation:fadeInUp 0.5s ease;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <button onclick="backToStep1()" class="btn btn-outline btn-sm">← Retour</button>
+        <h2 class="section-title" style="margin-bottom:0;">Étape 2 — <span id="typeLabel">Décrivez votre besoin</span></h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- Vérification connexion -->
+      <div id="notLoggedWarning" style="display:none;background:rgba(201,168,76,0.1);border:2px solid var(--gold);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;">
+        <p style="margin-bottom:12px;">⚠️ Connectez-vous pour envoyer une demande et discuter en temps réel.</p>
+        <a href="compte.html" class="btn btn-primary">👤 Se connecter / S'inscrire</a>
+      </div>
+
+      <!-- Description initiale -->
+      <div id="descriptionForm" class="card" style="margin-bottom:24px;">
+        <h4 style="color:var(--navy);margin-bottom:16px;font-family:'Playfair Display',serif;">Décrivez votre besoin</h4>
+        <div class="form-group">
+          <label class="form-label">Expliquez ce que vous souhaitez</label>
+          <textarea id="orderDesc" class="form-control" rows="4" placeholder="Ex: Je veux un CV pour un poste d'ingénieur informatique. J'ai 3 ans d'expérience. Style moderne et professionnel."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="submitOrder()" class="btn btn-primary">📨 Envoyer ma demande</button>
+        </div>
+      </div>
+
+      <!-- Chat en temps réel -->
+      <div id="chatSection" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h4 style="color:var(--navy);font-family:'Playfair Display',serif;">💬 Discussion en temps réel</h4>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--success);">
+            <span class="online-dot"></span> GlobalDoc est disponible
+          </div>
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="message received">
+              <div>Bonjour ! 👋 J'ai bien reçu votre demande. Je la traite immédiatement.</div>
+              <div class="message-time">GlobalDoc</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Tapez votre message..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()" class="btn btn-primary" style="border-radius:24px;padding:10px 20px;">Envoyer</button>
+          </div>
+        </div>
+
+        <!-- Bouton accord + WhatsApp -->
+        <div style="background:linear-gradient(135deg,#27AE60,#1E8449);border-radius:14px;padding:24px;margin-top:20px;text-align:center;color:white;">
+          <h4 style="margin-bottom:8px;font-size:1.1rem;">✅ Nous sommes d'accord ?</h4>
+          <p style="opacity:0.9;font-size:13px;margin-bottom:16px;">Si vous êtes satisfait du devis et du tarif discuté, cliquez ci-dessous pour finaliser sur WhatsApp.</p>
+          <button onclick="finalizeOnWhatsApp()" class="btn btn-whatsapp btn-lg">
+            💬 Confirmer & Contacter sur WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/sounds.js"></script>
+<script src="js/app.js"></script>
+<script>
+
+let selectedType = '';
+let selectedTypeLabel = '';
+let currentOrderId = null;
+const user = getSession();
+
+// Pré-sélectionner si paramètre URL
+const urlParams = new URLSearchParams(window.location.search);
+const preType = urlParams.get('type');
+if (preType) {
+  const labels = {
+    cv: '📄 CV & Lettre de motivation',
+    bureautique: '💼 Document Bureautique',
+    etudiant: '🎓 Aide Étudiant',
+    affiche: '🎨 Affiche & Visuel',
+  };
+  if (labels[preType]) setTimeout(() => selectType(preType, labels[preType]), 300);
+}
+
+function selectType(type, label) {
+  selectedType = type;
+  selectedTypeLabel = label;
+  Sounds.click();
+
+  // Highlight sélection
+  document.querySelectorAll('[id^="type-"]').forEach(el => {
+    el.style.border = '2px solid transparent';
+    el.style.background = 'white';
+  });
+  const card = document.getElementById('type-' + type);
+  if (card) {
+    card.style.border = '2px solid var(--gold)';
+    card.style.background = 'rgba(201,168,76,0.05)';
+  }
+
+  setTimeout(() => {
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('typeLabel').textContent = label;
+    document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+
+    // Vérifier connexion
+    if (!user) {
+      document.getElementById('notLoggedWarning').style.display = 'block';
+      document.getElementById('descriptionForm').style.opacity = '0.4';
+      document.getElementById('descriptionForm').style.pointerEvents = 'none';
+    }
+  }, 200);
+}
+
+function backToStep1() {
+  document.getElementById('step2').style.display = 'none';
+  Sounds.click();
+}
+
+async function submitOrder() {
+  if (!user) { showToast('Connectez-vous d\'abord.', 'error'); return; }
+  const desc = document.getElementById('orderDesc').value.trim();
+  if (!desc) { showToast('Décrivez votre besoin.', 'error'); return; }
+
+  const orderId = generateId();
+  currentOrderId = orderId;
+
+  const orderData = {
+    id: orderId,
+    userId: user.id,
+    userName: user.name,
+    type: selectedType,
+    typeLabel: selectedTypeLabel,
+    description: desc,
+    status: 'en_attente',
+    createdAt: Date.now(),
+    messages: {}
+  };
+
+  try {
+    await db.from('commandes').insert({
+      id: orderId, user_id: user.id, user_name: user.name,
+      type: selectedType, type_label: selectedTypeLabel,
+      description: desc, status: 'en_attente'
+    });
+    await db.from('messages').insert({
+      commande_id: orderId,
+      text: `Nouvelle demande : ${selectedTypeLabel}\n\n${desc}`,
+      sender: user.id, sender_name: user.name
+    });
+
+    document.getElementById('descriptionForm').style.display = 'none';
+    document.getElementById('chatSection').style.display = 'block';
+    listenToMessages(orderId);
+    showToast('Demande envoyée ! En attente de réponse.', 'success');
+
+  } catch(e) {
+    showToast('Erreur lors de l\'envoi.', 'error');
+  }
+}
+
+function addMessageToChat(msg, container) {
+  const isMe = msg.sender === user?.id;
+  const div = document.createElement('div');
+  div.className = `message \${isMe ? 'sent' : 'received'}`;
+  div.innerHTML = `<div>\${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">\${isMe ? 'Vous' : msg.sender_name} — \${formatTimeShort(msg.created_at)}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function listenToMessages(orderId) {
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.innerHTML = '';
+  db.from('messages').select('*').eq('commande_id', orderId).order('created_at').then(({ data }) => {
+    if (data) data.forEach(msg => addMessageToChat(msg, chatMessages));
+  });
+  db.channel('listen_' + orderId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `commande_id=eq.${orderId}` },
+      payload => { addMessageToChat(payload.new, chatMessages); if (payload.new.sender !== user?.id) Sounds.message(); })
+    .subscribe();
+}`;
+    div.innerHTML = `
+      <div>${msg.text.replace(/\n/g, '<br>')}</div>
+      <div class="message-time">${isMe ? 'Vous' : msg.senderName} — ${formatTimeShort(msg.timestamp)}</div>
+    `;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (!isMe) Sounds.message();
+  });
+}
+
+async function sendMessage() {
+  if (!user || !currentOrderId) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  try {
+    await db.from('messages').insert({ commande_id: currentOrderId, text, sender: user.id, sender_name: user.name });
+    input.value = '';
+    Sounds.click();
+  } catch(e) {
+    showToast('Erreur d\'envoi.', 'error');
+  }
+}
+
+function finalizeOnWhatsApp() {
+  const msg = `Bonjour GlobalDoc 👋
+
+Je confirme ma commande via le site DGD.CI :
+
+📋 Type : ${selectedTypeLabel}
+🆔 Référence : ${currentOrderId}
+👤 Nom : ${user?.name || 'Non connecté'}
+
+Nous sommes d'accord sur le tarif discuté. Je suis prêt à procéder. ✅`;
+
+  redirectWhatsApp(msg);
+  Sounds.success();
+}
+</script>
+
+</body>
+</html>

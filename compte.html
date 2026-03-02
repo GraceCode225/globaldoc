@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Compte — GlobalDoc DGD.CI</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo">
+    <div class="logo-text">
+      <span class="dgd">DGD<span>.CI</span></span>
+      <span class="globaldoc">GlobalDoc</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="services.html">📋 Services</a></li>
+    <li><a href="commander.html">📦 Commander</a></li>
+    <li><a href="bibliotheque.html">📚 Bibliothèque</a></li>
+    <li><a href="communaute.html">🗨️ Communauté</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+  </div>
+</nav>
+
+<div class="page-wrapper" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 70px);background:linear-gradient(135deg,#1B2A4A 0%,#243660 100%);padding:40px 1rem;">
+
+  <div style="width:100%;max-width:460px;">
+
+    <!-- Logo centré -->
+    <div style="text-align:center;margin-bottom:32px;animation:fadeInUp 0.6s ease;">
+      <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--gold);letter-spacing:3px;">DGD<span style="color:white;">.CI</span></div>
+      <div style="color:rgba(255,255,255,0.6);font-size:12px;letter-spacing:5px;margin-top:4px;">GLOBALDOC</div>
+    </div>
+
+    <!-- Onglets -->
+    <div style="display:flex;background:rgba(255,255,255,0.08);border-radius:12px;padding:4px;margin-bottom:24px;">
+      <button onclick="switchTab('login')" id="tab-login"
+        style="flex:1;padding:10px;border:none;border-radius:9px;background:var(--gold);color:var(--navy-dark);font-weight:700;cursor:pointer;font-size:14px;transition:all 0.3s;">
+        Connexion
+      </button>
+      <button onclick="switchTab('register')" id="tab-register"
+        style="flex:1;padding:10px;border:none;border-radius:9px;background:transparent;color:rgba(255,255,255,0.7);font-weight:600;cursor:pointer;font-size:14px;transition:all 0.3s;">
+        S'inscrire
+      </button>
+    </div>
+
+    <!-- Formulaire Connexion -->
+    <div id="form-login" class="card" style="animation:fadeInUp 0.5s ease;">
+      <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:6px;">Connexion</h2>
+      <p style="color:#8A95A8;font-size:13px;margin-bottom:24px;">Entrez votre nom et votre code personnel.</p>
+
+      <div class="form-group">
+        <label class="form-label">Votre nom</label>
+        <input type="text" id="loginName" class="form-control" placeholder="Ex: Jean Konan" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Votre code personnel</label>
+        <div style="position:relative;">
+          <input type="password" id="loginCode" class="form-control" placeholder="Votre code secret" autocomplete="off" style="padding-right:50px;">
+          <button onclick="togglePass('loginCode')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;">👁️</button>
+        </div>
+      </div>
+
+      <button onclick="doLogin()" class="btn btn-primary" style="width:100%;margin-top:8px;">
+        Se connecter →
+      </button>
+
+      <p style="text-align:center;margin-top:16px;font-size:13px;color:#8A95A8;">
+        Pas encore de compte ? <a href="javascript:void(0)" onclick="switchTab('register')" style="color:var(--gold);font-weight:600;">S'inscrire</a>
+      </p>
+    </div>
+
+    <!-- Formulaire Inscription -->
+    <div id="form-register" class="card" style="display:none;animation:fadeInUp 0.5s ease;">
+      <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:6px;">Créer un compte</h2>
+      <p style="color:#8A95A8;font-size:13px;margin-bottom:24px;">Choisissez un nom et un code personnel pour vous connecter.</p>
+
+      <div class="form-group">
+        <label class="form-label">Votre nom complet</label>
+        <input type="text" id="regName" class="form-control" placeholder="Ex: Jean Konan Oulai" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Choisissez un code personnel</label>
+        <div style="position:relative;">
+          <input type="password" id="regCode" class="form-control" placeholder="Minimum 4 caractères" autocomplete="off" style="padding-right:50px;">
+          <button onclick="togglePass('regCode')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;">👁️</button>
+        </div>
+        <p style="font-size:11px;color:#8A95A8;margin-top:6px;">⚠️ Retenez bien votre code, il vous servira à vous connecter.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmez votre code</label>
+        <input type="password" id="regCode2" class="form-control" placeholder="Répétez votre code" autocomplete="off">
+      </div>
+
+      <button onclick="doRegister()" class="btn btn-primary" style="width:100%;margin-top:8px;">
+        Créer mon compte ✓
+      </button>
+
+      <p style="text-align:center;margin-top:16px;font-size:13px;color:#8A95A8;">
+        Déjà inscrit ? <a href="javascript:void(0)" onclick="switchTab('login')" style="color:var(--gold);font-weight:600;">Se connecter</a>
+      </p>
+    </div>
+
+    <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:11px;margin-top:20px;">
+      🔒 Vos données sont sécurisées et stockées sur nos serveurs Firebase.
+    </p>
+  </div>
+</div>
+
+<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/sounds.js"></script>
+<script src="js/app.js"></script>
+<script>
+
+// Rediriger si déjà connecté
+if (getSession()) window.location.href = 'index.html';
+
+function switchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('form-register').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('tab-login').style.background = isLogin ? 'var(--gold)' : 'transparent';
+  document.getElementById('tab-login').style.color = isLogin ? 'var(--navy-dark)' : 'rgba(255,255,255,0.7)';
+  document.getElementById('tab-register').style.background = !isLogin ? 'var(--gold)' : 'transparent';
+  document.getElementById('tab-register').style.color = !isLogin ? 'var(--navy-dark)' : 'rgba(255,255,255,0.7)';
+  Sounds.click();
+}
+
+function togglePass(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+async function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const code = document.getElementById('loginCode').value.trim();
+
+  if (!name || !code) { showToast('Remplissez tous les champs.', 'error'); return; }
+
+  // Vérifier si c'est l'admin
+  if (code === ADMIN_CODE) {
+    const user = { id: 'admin', name: name || 'Admin', code: ADMIN_CODE, role: 'admin' };
+    setSession(user);
+    showToast('Bienvenue Admin !', 'success');
+    setTimeout(() => window.location.href = 'admin.html', 1000);
+    return;
+  }
+
+  try {
+    const { data, error } = await db.from('users').select('*').eq('name', name).eq('code', code).single();
+    if (error || !data) { showToast('Nom ou code incorrect.', 'error'); return; }
+
+    setSession(data);
+    await setOnlineStatus(data.id, true);
+    showToast(`Bienvenue ${data.name} !`, 'success');
+    setTimeout(() => window.location.href = 'index.html', 1000);
+
+  } catch(e) {
+    showToast('Erreur de connexion. Réessayez.', 'error');
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const code = document.getElementById('regCode').value.trim();
+  const code2 = document.getElementById('regCode2').value.trim();
+
+  if (!name || !code || !code2) { showToast('Remplissez tous les champs.', 'error'); return; }
+  if (code.length < 4) { showToast('Le code doit faire au moins 4 caractères.', 'error'); return; }
+  if (code !== code2) { showToast('Les codes ne correspondent pas.', 'error'); return; }
+  if (code === ADMIN_CODE) { showToast('Ce code est réservé.', 'error'); return; }
+
+  try {
+    const { data: existing } = await db.from('users').select('id').eq('name', name).maybeSingle();
+    if (existing) { showToast('Ce nom est déjà utilisé. Choisissez un autre.', 'error'); return; }
+
+    const userId = generateId();
+    const userData = { id: userId, name, code, role: 'user', online: false };
+
+    const { error } = await db.from('users').insert(userData);
+    if (error) throw error;
+
+    setSession(userData);
+    await setOnlineStatus(userId, true);
+    showToast(`Compte créé ! Bienvenue ${name} 🎉`, 'success');
+    setTimeout(() => window.location.href = 'index.html', 1200);
+
+  } catch(e) {
+    showToast('Erreur lors de la création. Réessayez.', 'error');
+  }
+}
+
+// Connexion avec Enter
+document.addEventListener('keypress', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('form-login').style.display !== 'none') doLogin();
+    else doRegister();
+  }
+});
+</script>
+
+</body>
+</html>
