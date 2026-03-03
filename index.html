@@ -250,14 +250,16 @@ async function loadAnnonces() {
     container.innerHTML = '<p style="color:#8A95A8;text-align:center;grid-column:1/-1;">Aucune annonce pour le moment.</p>';
     return;
   }
-  container.innerHTML = items.map(a => `
+  container.innerHTML = items.map(a => {
+    const img = a.image ? '<img src="' + a.image + '" style="width:100%;border-radius:8px;margin-bottom:12px;object-fit:cover;max-height:180px;">' : '';
+    return `
     <div class="card" style="border-left:4px solid var(--gold);">
-      ${a.image ? `<img src="${a.image}" style="width:100%;border-radius:8px;margin-bottom:12px;object-fit:cover;max-height:180px;">` : ''}
+      ${img}
       <h4 style="font-family:'Playfair Display',serif;color:#1B2A4A;margin-bottom:8px;">${a.titre}</h4>
       <p style="font-size:13px;color:#555;line-height:1.6;">${a.contenu}</p>
       <p style="font-size:11px;color:#8A95A8;margin-top:10px;">📅 ${formatTime(a.created_at)}</p>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 // Charger vidéos depuis Supabase

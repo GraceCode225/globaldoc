@@ -215,15 +215,18 @@ async function loadUsers() {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#8A95A8;padding:20px;">Aucun utilisateur inscrit.</td></tr>';
     return;
   }
-  tbody.innerHTML = items.map(u => `
+  tbody.innerHTML = items.map(u => {
+    const color = u.online ? 'var(--success)' : '#8A95A8';
+    const status = u.online ? '🟢 En ligne' : '⚫ Hors ligne';
+    return `
     <tr>
       <td><strong>${u.name}</strong></td>
       <td><code style="background:#f0f4ff;padding:3px 8px;border-radius:6px;">${u.id}</code></td>
-      <td><span style="color:${u.online ? 'var(--success)' : '#8A95A8'};">${u.online ? '🟢 En ligne' : '⚫ Hors ligne'}</span></td>
+      <td><span style="color:${color};">${status}</span></td>
       <td>${formatTime(u.created_at)}</td>
       <td><button onclick="deleteUser('${u.id}')" class="btn btn-danger btn-sm">🗑️</button></td>
     </tr>
-  `).join('');
+  `}).join('');
 }
 
 async function deleteUser(id, name) {
@@ -241,15 +244,19 @@ async function loadCommandes() {
     container.innerHTML = '<p style="color:#8A95A8;text-align:center;">Aucune commande.</p>';
     return;
   }
-  container.innerHTML = items.map(cmd => `
-    <div class="card" style="margin-bottom:16px;border-left:4px solid ${cmd.status==='en_attente'?'var(--gold)':'var(--success)};">
+  container.innerHTML = items.map(cmd => {
+    const borderColor = cmd.status === 'en_attente' ? 'var(--gold)' : 'var(--success)';
+    const badgeClass = cmd.status === 'en_attente' ? 'badge-gold' : 'badge-green';
+    const statusText = cmd.status === 'en_attente' ? '⏳ En attente' : '✅ Traité';
+    return `
+    <div class="card" style="margin-bottom:16px;border-left:4px solid ${borderColor};">
       <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
         <div>
           <span class="badge badge-navy" style="margin-right:8px;">${cmd.id}</span>
           <strong style="color:var(--navy);">${cmd.type_label}</strong>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <span class="badge ${cmd.status==='en_attente'?'badge-gold':'badge-green'}">${cmd.status === 'en_attente' ? '⏳ En attente' : '✅ Traité'}</span>
+          <span class="badge ${badgeClass}">${statusText}</span>
           <button onclick="toggleStatus('${cmd.id}','${cmd.status}')" class="btn btn-sm btn-outline">Changer statut</button>
         </div>
       </div>
@@ -257,10 +264,10 @@ async function loadCommandes() {
       <p style="font-size:11px;color:#8A95A8;margin-top:6px;">👤 ${cmd.user_name} — 📅 ${formatTime(cmd.created_at)}</p>
       <div style="margin-top:12px;">
         <button onclick="openCommandeChat('${cmd.id}','${cmd.user_name}')" class="btn btn-primary btn-sm">💬 Répondre</button>
-        <button onclick="redirectWhatsApp('Bonjour ${cmd.user_name}, concernant votre commande ${cmd.id}...')" class="btn btn-sm" style="background:#25D366;color:white;margin-left:8px;">💬 WhatsApp</button>
+        <button onclick="redirectWhatsApp('Bonjour ' + '${cmd.user_name}' + ', commande ${cmd.id}')" class="btn btn-sm" style="background:#25D366;color:white;margin-left:8px;">💬 WhatsApp</button>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 async function toggleStatus(id, current) {
@@ -340,15 +347,17 @@ async function loadAnnonces() {
   const container = document.getElementById('annoncesList');
   const { data: items } = await db.from('annonces').select('*').order('created_at', { ascending: false });
   if (!items || !items.length) { container.innerHTML = '<p style="color:#8A95A8;">Aucune annonce.</p>'; return; }
-  container.innerHTML = items.map(a => `
+  container.innerHTML = items.map(a => {
+    const img = a.image ? '<img src="' + a.image + '" style="width:100%;border-radius:8px;margin-bottom:10px;max-height:140px;object-fit:cover;">' : '';
+    return `
     <div class="card" style="border-left:4px solid var(--gold);">
-      ${a.image ? `<img src="${a.image}" style="width:100%;border-radius:8px;margin-bottom:10px;max-height:140px;object-fit:cover;">` : ''}
+      ${img}
       <h4 style="color:var(--navy);margin-bottom:8px;">${a.titre}</h4>
       <p style="font-size:13px;color:#555;">${a.contenu}</p>
       <p style="font-size:11px;color:#8A95A8;margin-top:8px;">📅 ${formatTime(a.created_at)}</p>
       <button onclick="deleteAnnonce(${a.id})" class="btn btn-danger btn-sm" style="margin-top:10px;">🗑️ Supprimer</button>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 async function deleteAnnonce(id) {
@@ -440,18 +449,20 @@ async function loadPdfs() {
     container.innerHTML = '<p style="color:#8A95A8;">Aucun PDF.</p>';
     return;
   }
-  container.innerHTML = items.map(p => `
+  container.innerHTML = items.map(p => {
+    const desc = p.description || '';
+    return `
     <div class="card" style="border-top:4px solid var(--navy);">
       <div style="font-size:36px;margin-bottom:10px;">📄</div>
       <h4 style="color:var(--navy);margin-bottom:6px;">${p.titre}</h4>
-      <p style="font-size:12px;color:#8A95A8;margin-bottom:10px;">${p.description || ''}</p>
+      <p style="font-size:12px;color:#8A95A8;margin-bottom:10px;">${desc}</p>
       <p style="font-size:11px;color:#8A95A8;">📅 ${formatTime(p.created_at)}</p>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
         <a href="${p.url}" target="_blank" class="btn btn-navy btn-sm">👁️ Voir</a>
         <button onclick="deletePdf(${p.id},'${p.url}')" class="btn btn-danger btn-sm">🗑️ Supprimer</button>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 async function deletePdf(id, url) {
