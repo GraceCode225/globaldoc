@@ -302,4 +302,13 @@ loadVideos();
 </script>
 
 </body>
+  <script>
+function toggleMenu() {
+  var nav = document.querySelector('.navbar-nav');
+  var btn = document.getElementById('hamburgerBtn');
+  if (!nav || !btn) return;
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+</script>
 </html>
