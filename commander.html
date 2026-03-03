@@ -260,8 +260,8 @@ async function submitOrder() {
 function addMessageToChat(msg, container) {
   const isMe = msg.sender === user?.id;
   const div = document.createElement('div');
-  div.className = `message \${isMe ? 'sent' : 'received'}`;
-  div.innerHTML = `<div>\${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">\${isMe ? 'Vous' : msg.sender_name} — \${formatTimeShort(msg.created_at)}</div>`;
+  div.className = `message ${isMe ? 'sent' : 'received'}`;
+  div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${isMe ? 'Vous' : msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
@@ -276,15 +276,6 @@ function listenToMessages(orderId) {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `commande_id=eq.${orderId}` },
       payload => { addMessageToChat(payload.new, chatMessages); if (payload.new.sender !== user?.id) Sounds.message(); })
     .subscribe();
-}`;
-    div.innerHTML = `
-      <div>${msg.text.replace(/\n/g, '<br>')}</div>
-      <div class="message-time">${isMe ? 'Vous' : msg.senderName} — ${formatTimeShort(msg.timestamp)}</div>
-    `;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    if (!isMe) Sounds.message();
-  });
 }
 
 async function sendMessage() {
