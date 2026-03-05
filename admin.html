@@ -145,6 +145,14 @@
           <input type="text" id="pdfDesc" class="form-control" placeholder="Ex: Un guide complet pour rédiger un CV parfait.">
         </div>
         <div class="form-group">
+          <label class="form-label">Prix (FCFA) — minimum 1000</label>
+          <input type="number" id="pdfPrix" class="form-control" placeholder="Ex: 1000" min="1000" value="1000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image de couverture (optionnel)</label>
+          <input type="file" id="pdfCover" accept="image/*" class="form-control">
+        </div>
+        <div class="form-group">
           <label class="form-label">Fichier PDF</label>
           <input type="file" id="pdfFile" accept=".pdf" class="form-control">
         </div>
@@ -154,10 +162,14 @@
           </div>
           <p style="font-size:12px;color:#8A95A8;margin-top:4px;" id="progressText">0%</p>
         </div>
-        <button onclick="uploadPdf()" class="btn btn-primary">📤 Uploader le PDF</button>
+        <button onclick="uploadPdf()" class="btn btn-primary">📤 Ajouter le PDF</button>
       </div>
 
-      <h4 style="color:var(--navy);margin-bottom:12px;">PDFs en bibliothèque</h4>
+      <!-- Achats en attente -->
+      <h4 style="color:var(--navy);margin-bottom:12px;">💰 Achats en attente de validation</h4>
+      <div id="achatsList" style="margin-bottom:24px;"></div>
+
+      <h4 style="color:var(--navy);margin-bottom:12px;">📚 PDFs en bibliothèque</h4>
       <div id="adminPdfList" class="grid-3"></div>
     </div>
 
@@ -174,11 +186,19 @@
 <script src="js/app.js"></script>
 <script>
 
-// Vérifier accès admin
-const adminUser = getSession();
-if (!adminUser || !isAdmin(adminUser)) {
-  window.location.href = 'index.html';
-}
+// Vérifier accès admin - sécurité renforcée
+(function() {
+  try {
+    const adminUser = getSession();
+    if (!adminUser || !adminUser.code || adminUser.code !== 'DGDCI_ADMIN_2025') {
+      alert('⛔ Accès refusé. Vous devez être connecté en tant qu\'administrateur.');
+      window.location.replace('compte.html');
+      return;
+    }
+  } catch(e) {
+    window.location.replace('compte.html');
+  }
+})();
 
 function showTab(tab) {
   ['users','commandes','annonces','videos','pdfs'].forEach(t => {
@@ -193,7 +213,7 @@ function showTab(tab) {
   if (tab === 'commandes') loadCommandes();
   if (tab === 'annonces') loadAnnonces();
   if (tab === 'videos') loadVideos();
-  if (tab === 'pdfs') loadPdfs();
+  if (tab === 'pdfs') { loadPdfs(); loadAchats(); }
 }
 
 // ── STATS ──────────────────────────────────────────────
@@ -408,37 +428,52 @@ async function deleteVideo(id) {
 async function uploadPdf() {
   const titre = document.getElementById('pdfTitle').value.trim();
   const desc = document.getElementById('pdfDesc').value.trim();
+  const prix = parseInt(document.getElementById('pdfPrix').value) || 1000;
   const file = document.getElementById('pdfFile').files[0];
+  const coverFile = document.getElementById('pdfCover').files[0];
   if (!titre || !file) { showToast('Titre et fichier PDF requis.', 'error'); return; }
+  if (prix < 1000) { showToast('Le prix minimum est 1000 FCFA.', 'error'); return; }
 
   const progressWrap = document.getElementById('uploadProgress');
   const progressBar = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
   progressWrap.style.display = 'block';
-  progressBar.style.width = '30%';
-  progressText.textContent = 'Envoi en cours...';
+  progressBar.style.width = '20%';
+  progressText.textContent = 'Upload en cours...';
 
   try {
+    // Upload PDF
     const fileName = Date.now() + '_' + file.name.replace(/\s/g, '_');
-    const { data, error } = await db.storage.from('bibliotheque').upload(fileName, file);
-    if (error) throw error;
-
-    progressBar.style.width = '80%';
-    progressText.textContent = '80%';
-
+    const { error: pdfError } = await db.storage.from('bibliotheque').upload(fileName, file);
+    if (pdfError) throw pdfError;
     const { data: urlData } = db.storage.from('bibliotheque').getPublicUrl(fileName);
     const url = urlData.publicUrl;
+    progressBar.style.width = '60%';
 
-    await db.from('bibliotheque').insert({ titre, description: desc, url, size: file.size });
+    // Upload image couverture si présente
+    let imageUrl = null;
+    if (coverFile) {
+      const coverName = 'cover_' + Date.now() + '_' + coverFile.name.replace(/\s/g, '_');
+      const { error: coverError } = await db.storage.from('bibliotheque').upload(coverName, coverFile);
+      if (!coverError) {
+        const { data: coverUrlData } = db.storage.from('bibliotheque').getPublicUrl(coverName);
+        imageUrl = coverUrlData.publicUrl;
+      }
+    }
+    progressBar.style.width = '80%';
+
+    await db.from('bibliotheque').insert({ titre, description: desc, url, prix, image_url: imageUrl, size: file.size });
 
     progressBar.style.width = '100%';
     progressText.textContent = '100%';
     showToast('PDF ajouté à la bibliothèque !', 'success');
-    document.getElementById('pdfTitle').value = '';
-    document.getElementById('pdfDesc').value = '';
-    document.getElementById('pdfFile').value = '';
+    ['pdfTitle','pdfDesc','pdfPrix','pdfFile','pdfCover'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = id === 'pdfPrix' ? '1000' : '';
+    });
     setTimeout(() => { progressWrap.style.display = 'none'; }, 1000);
     loadPdfs();
+    loadAchats();
   } catch(e) {
     showToast('Erreur upload : ' + e.message, 'error');
     progressWrap.style.display = 'none';
@@ -449,23 +484,71 @@ async function loadPdfs() {
   const container = document.getElementById('adminPdfList');
   const { data: items } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false });
   if (!items || !items.length) {
-    container.innerHTML = '<p style="color:#8A95A8;">Aucun PDF.</p>';
+    container.innerHTML = '<p style="color:#8A95A8;text-align:center;padding:20px;">📭 Aucun PDF dans la bibliothèque.</p>';
     return;
   }
   container.innerHTML = items.map(p => {
     const desc = p.description || '';
+    const prix = p.prix || 1000;
     return `
     <div class="card" style="border-top:4px solid var(--navy);">
-      <div style="font-size:36px;margin-bottom:10px;">📄</div>
-      <h4 style="color:var(--navy);margin-bottom:6px;">${p.titre}</h4>
-      <p style="font-size:12px;color:#8A95A8;margin-bottom:10px;">${desc}</p>
-      <p style="font-size:11px;color:#8A95A8;">📅 ${formatTime(p.created_at)}</p>
-      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      ${p.image_url ? '<img src="' + p.image_url + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:10px;">' : '<div style="font-size:36px;margin-bottom:10px;text-align:center;">📄</div>'}
+      <h4 style="color:var(--navy);margin-bottom:4px;">${p.titre}</h4>
+      <p style="font-size:12px;color:#8A95A8;margin-bottom:8px;">${desc}</p>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="color:var(--gold);font-weight:700;font-size:16px;">${prix.toLocaleString()} FCFA</span>
+        <input type="number" value="${prix}" min="1000" style="width:100px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;" id="prix-${p.id}">
+        <button onclick="modifierPrix(${p.id})" class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:12px;">✏️ Modifier</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <a href="${p.url}" target="_blank" class="btn btn-navy btn-sm">👁️ Voir</a>
         <button onclick="deletePdf(${p.id},'${p.url}')" class="btn btn-danger btn-sm">🗑️ Supprimer</button>
       </div>
     </div>
   `}).join('');
+}
+
+async function modifierPrix(id) {
+  const newPrix = parseInt(document.getElementById('prix-' + id).value);
+  if (!newPrix || newPrix < 1000) { showToast('Prix minimum : 1000 FCFA', 'error'); return; }
+  await db.from('bibliotheque').update({ prix: newPrix }).eq('id', id);
+  showToast('Prix mis à jour !', 'success');
+  loadPdfs();
+}
+
+async function loadAchats() {
+  const container = document.getElementById('achatsList');
+  if (!container) return;
+  const { data: items } = await db.from('achats_pdf').select('*').eq('statut', 'en_attente').order('created_at', { ascending: false });
+  if (!items || !items.length) {
+    container.innerHTML = '<p style="color:#8A95A8;padding:12px;">✅ Aucun achat en attente.</p>';
+    return;
+  }
+  container.innerHTML = items.map(a => `
+    <div class="card" style="margin-bottom:12px;border-left:4px solid var(--gold);display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+      <div style="flex:1;min-width:200px;">
+        <strong>${a.user_name}</strong> veut acheter <strong>${a.pdf_titre}</strong>
+        <div style="font-size:12px;color:#8A95A8;">Montant : ${a.montant ? a.montant.toLocaleString() : '?'} FCFA — ${formatTime(a.created_at)}</div>
+      </div>
+      ${a.capture_url ? '<img src="' + a.capture_url + '" style="height:80px;border-radius:8px;cursor:pointer;" onclick="window.open(this.src)" title="Voir la capture">' : '<span style="color:#8A95A8;font-size:13px;">Pas de capture</span>'}
+      <div style="display:flex;gap:8px;">
+        <button onclick="validerAchat(${a.id}, ${a.pdf_id})" class="btn btn-sm" style="background:var(--success);color:white;">✅ Valider</button>
+        <button onclick="refuserAchat(${a.id})" class="btn btn-danger btn-sm">❌ Refuser</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function validerAchat(achatId, pdfId) {
+  await db.from('achats_pdf').update({ statut: 'valide' }).eq('id', achatId);
+  showToast('✅ Achat validé ! Le PDF est débloqué pour le client.', 'success');
+  loadAchats();
+}
+
+async function refuserAchat(achatId) {
+  await db.from('achats_pdf').update({ statut: 'refuse' }).eq('id', achatId);
+  showToast('❌ Achat refusé.', 'success');
+  loadAchats();
 }
 
 async function deletePdf(id, url) {
@@ -484,5 +567,24 @@ async function deletePdf(id, url) {
 loadUsers();
 </script>
 
+<script>
+function toggleMenu() {
+  var nav = document.querySelector('.navbar-nav');
+  var btn = document.getElementById('hamburgerBtn');
+  if (!nav || !btn) return;
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.navbar-nav a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      var nav = document.querySelector('.navbar-nav');
+      var btn = document.getElementById('hamburgerBtn');
+      if (nav) nav.classList.remove('open');
+      if (btn) btn.classList.remove('open');
+    });
+  });
+});
+</script>
 </body>
 </html>

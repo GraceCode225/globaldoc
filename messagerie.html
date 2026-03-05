@@ -132,5 +132,24 @@ async function sendMsg(orderId) {
   input.value = '';
 }
 </script>
+<script>
+function toggleMenu() {
+  var nav = document.querySelector('.navbar-nav');
+  var btn = document.getElementById('hamburgerBtn');
+  if (!nav || !btn) return;
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.navbar-nav a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      var nav = document.querySelector('.navbar-nav');
+      var btn = document.getElementById('hamburgerBtn');
+      if (nav) nav.classList.remove('open');
+      if (btn) btn.classList.remove('open');
+    });
+  });
+});
+</script>
 </body>
 </html>

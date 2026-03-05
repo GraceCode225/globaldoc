@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div class="page-loader"></div>
 <nav class="navbar">
   <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
   <ul class="navbar-nav">
@@ -44,7 +45,7 @@
     <p style="color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto;">Tout ce dont vous avez besoin en bureautique, en un seul endroit. Qualité professionnelle, tarifs accessibles.</p>
   </div>
 
-  <div class="section">
+  <div class="section reveal">
     <div style="background:rgba(201,168,76,0.1);border:2px solid var(--gold);border-radius:14px;padding:20px;margin-bottom:40px;display:flex;align-items:center;gap:14px;">
       <div style="font-size:32px;">✅</div>
       <div>
@@ -100,5 +101,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script><script src="js/sounds.js"></script><script src="js/app.js"></script>
+<script>
+function toggleMenu() {
+  var nav = document.querySelector('.navbar-nav');
+  var btn = document.getElementById('hamburgerBtn');
+  if (!nav || !btn) return;
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.navbar-nav a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      var nav = document.querySelector('.navbar-nav');
+      var btn = document.getElementById('hamburgerBtn');
+      if (nav) nav.classList.remove('open');
+      if (btn) btn.classList.remove('open');
+    });
+  });
+});
+</script>
+
+<script>
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(el => observer.observe(el));
+</script>
 </body>
 </html>

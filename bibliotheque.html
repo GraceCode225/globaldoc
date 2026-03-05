@@ -1,26 +1,283 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bibliothèque PDF — GlobalDoc DGD.CI</title>
-  <meta name="description" content="Téléchargez gratuitement des documents PDF utiles : modèles de CV, lettres types, guides universitaires.">
-  <meta name="keywords" content="télécharger PDF gratuit, modèle CV, lettre type, guide universitaire">
+  <meta name="description" content="Achetez et téléchargez des documents PDF professionnels : modèles de CV, lettres types, guides universitaires.">
+  <meta name="keywords" content="acheter PDF, modèle CV, lettre type, guide universitaire, Côte d'Ivoire">
   <meta name="author" content="DGD.CI — GlobalDoc">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="Bibliothèque PDF — GlobalDoc DGD.CI">
-  <meta property="og:description" content="Téléchargez gratuitement des documents PDF utiles : modèles de CV, lettres types, guides universitaires.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://gracecode225.github.io/globaldoc/">
-  <meta property="og:image" content="https://gracecode225.github.io/globaldoc/assets/logo.svg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Bibliothèque PDF — GlobalDoc DGD.CI">
-  <meta name="twitter:description" content="Téléchargez gratuitement des documents PDF utiles : modèles de CV, lettres types, guides universitaires.">
-  <link rel="canonical" href="https://gracecode225.github.io/globaldoc/">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── CATALOGUE BIBLIOTHÈQUE ── */
+    .catalogue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .pdf-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(27,42,74,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #eef0f5;
+    }
+    .pdf-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 36px rgba(27,42,74,0.18);
+    }
+    .pdf-cover {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #1B2A4A, #243660);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+    }
+    .pdf-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .pdf-body {
+      padding: 16px;
+    }
+    .pdf-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .pdf-desc {
+      font-size: 13px;
+      color: #8A95A8;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .pdf-prix {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .pdf-stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: #8A95A8;
+    }
+    .stars { color: #f59e0b; letter-spacing: 1px; }
+    .btn-acheter {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--navy), #243660);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 8px;
+    }
+    .btn-acheter:hover { opacity: 0.9; transform: scale(1.02); }
+    .btn-like {
+      width: 100%;
+      padding: 9px;
+      background: none;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #8A95A8;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-like:hover, .btn-like.liked {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fff5f5;
+    }
+    .btn-avis {
+      width: 100%;
+      padding: 9px;
+      background: none;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #8A95A8;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 6px;
+    }
+    .btn-avis:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── MASCOTTE ── */
+    .mascotte-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .mascotte-overlay.show { display: flex; }
+    .mascotte-box {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 28px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      animation: zoomIn 0.4s ease;
+      position: relative;
+    }
+    .mascotte-emoji {
+      font-size: 64px;
+      margin-bottom: 12px;
+      animation: float 2s ease-in-out infinite;
+    }
+    .mascotte-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .mascotte-steps {
+      text-align: left;
+      margin: 16px 0;
+    }
+    .mascotte-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #f8f9ff;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #444;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: all 0.4s ease;
+    }
+    .mascotte-step.show { opacity: 1; transform: translateX(0); }
+    .mascotte-step-num {
+      background: var(--navy);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .mascotte-wave {
+      background: linear-gradient(135deg, #1B2A4A, #243660);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .mascotte-wave strong { color: var(--gold); font-size: 18px; }
+    .mascotte-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: #f0f4ff;
+      border: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      color: #8A95A8;
+    }
+
+    /* ── MODAL AVIS ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 8888;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 400px;
+      width: 100%;
+      animation: zoomIn 0.3s ease;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--navy);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .star-picker {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .star-picker span {
+      font-size: 32px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      filter: grayscale(1);
+    }
+    .star-picker span.active { filter: none; transform: scale(1.2); }
+
+    /* ── UPLOAD CAPTURE ── */
+    .capture-zone {
+      border: 2px dashed #C9A84C;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      margin: 12px 0;
+      transition: background 0.3s;
+    }
+    .capture-zone:hover { background: #fffbf0; }
+    .capture-preview {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
 </head>
 <body>
+<div class="page-loader"></div>
+
+<!-- ── NAVBAR ── -->
 <nav class="navbar">
-  <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
+  <a href="index.html" class="navbar-logo">
+    <div class="logo-text">
+      <span class="dgd">DGD<span>.CI</span></span>
+      <span class="globaldoc">GlobalDoc</span>
+    </div>
+  </a>
   <ul class="navbar-nav">
     <li><a href="index.html">🏠 Accueil</a></li>
     <li><a href="services.html">📋 Services</a></li>
@@ -38,75 +295,372 @@
     <button onclick="logout()" class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;" data-auth="logged">Déconnexion</button>
   </div>
 </nav>
+
 <div class="page-wrapper">
+  <!-- Hero -->
   <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:60px 2rem;text-align:center;">
-    <div style="font-size:52px;margin-bottom:16px;">📚</div>
-    <h1 style="font-family:'Playfair Display',serif;font-size:2.5rem;color:white;margin-bottom:12px;">Bibliothèque <span style="color:var(--gold);">PDF Gratuite</span></h1>
-    <p style="color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto;">Documents mis à disposition gratuitement par GlobalDoc. Téléchargez librement et informez-vous.</p>
+    <div style="font-size:52px;margin-bottom:16px;" class="animate-float">📚</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:white;margin-bottom:12px;">
+      Bibliothèque <span style="color:var(--gold);">Professionnelle</span>
+    </h1>
+    <p style="color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto;">
+      Découvrez notre catalogue de documents professionnels. Achetez, téléchargez et améliorez votre carrière.
+    </p>
   </div>
 
-  <!-- Demande de PDF spécifique -->
-  <div style="background:white;padding:36px 2rem;border-bottom:2px solid var(--gray);">
-    <div style="max-width:700px;margin:0 auto;text-align:center;">
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:10px;">Vous cherchez un document spécifique ?</h3>
-      <p style="color:#8A95A8;margin-bottom:20px;font-size:14px;">Écrivez-nous votre demande. Nous vérifierons si nous pouvons vous le fournir, parfois avec un tarif selon le document.</p>
-      <div style="display:flex;gap:10px;max-width:500px;margin:0 auto;flex-wrap:wrap;">
-        <input type="text" id="pdfRequest" class="form-control" placeholder="Ex: Guide de rédaction administrative..." style="flex:1;">
-        <button onclick="sendPdfRequest()" class="btn btn-primary">📨 Demander</button>
+  <!-- Catalogue -->
+  <div class="section">
+    <h2 class="section-title">Nos <span>Documents</span></h2>
+    <div class="section-divider"></div>
+    <div id="catalogueGrid" class="catalogue-grid">
+      <div style="text-align:center;color:#8A95A8;padding:60px;grid-column:1/-1;">
+        <div style="font-size:48px;margin-bottom:12px;">⏳</div>
+        Chargement du catalogue...
       </div>
     </div>
   </div>
 
-  <div class="section">
-    <h2 class="section-title">Documents <span>disponibles</span></h2>
-    <div class="section-divider"></div>
-    <div id="pdfGrid" class="grid-3" style="margin-top:24px;">
-      <div style="text-align:center;color:#8A95A8;padding:40px;grid-column:1/-1;">
-        <div style="font-size:48px;margin-bottom:12px;">📂</div>
-        Chargement de la bibliothèque...
+  <!-- Demande spécifique -->
+  <div style="background:#f8f9ff;padding:40px 2rem;border-top:2px solid #eef0f5;">
+    <div style="max-width:600px;margin:0 auto;text-align:center;">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:10px;">
+        Vous cherchez un document spécifique ?
+      </h3>
+      <p style="color:#8A95A8;margin-bottom:20px;font-size:14px;">
+        Écrivez votre demande et nous vérifierons si nous pouvons vous le fournir.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <input type="text" id="pdfRequest" class="form-control" placeholder="Ex: Guide de rédaction administrative..." style="flex:1;min-width:200px;">
+        <button onclick="sendPdfRequest()" class="btn btn-primary">📨 Demander</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MASCOTTE PAIEMENT ── -->
+<div class="mascotte-overlay" id="mascotteOverlay">
+  <div class="mascotte-box">
+    <button class="mascotte-close" onclick="fermerMascotte()">✕</button>
+    <div class="mascotte-emoji">🤖</div>
+    <div class="mascotte-title">Comment acheter votre document ?</div>
+    <p style="font-size:13px;color:#8A95A8;margin-bottom:4px;">Suivez ces étapes simples :</p>
+    <div class="mascotte-steps" id="mascotteSteps">
+      <div class="mascotte-step" id="step1">
+        <div class="mascotte-step-num">1</div>
+        <div>Envoyez le montant exact sur <strong>Wave</strong></div>
+      </div>
+      <div class="mascotte-step" id="step2">
+        <div class="mascotte-step-num">2</div>
+        <div>Numéro Wave : <strong style="color:var(--navy);">+225 0501233818</strong></div>
+      </div>
+      <div class="mascotte-step" id="step3">
+        <div class="mascotte-step-num">3</div>
+        <div>Prenez une <strong>capture d'écran</strong> du paiement réussi</div>
+      </div>
+      <div class="mascotte-step" id="step4">
+        <div class="mascotte-step-num">4</div>
+        <div>Envoyez la capture ici — votre PDF se <strong>débloque automatiquement !</strong> ✅</div>
+      </div>
+    </div>
+    <div class="mascotte-wave" id="mascotteInfo"></div>
+    <div class="capture-zone" onclick="document.getElementById('captureInput').click()">
+      📸 Cliquez ici pour envoyer votre capture d'écran
+      <input type="file" id="captureInput" accept="image/*" style="display:none" onchange="previewCapture(event)">
+      <img id="capturePreview" class="capture-preview">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="confirmerAchat()">
+      ✅ J'ai payé — Envoyer ma capture
+    </button>
+  </div>
+</div>
+
+<!-- ── MODAL AVIS ── -->
+<div class="modal-overlay" id="avisOverlay">
+  <div class="modal-box">
+    <div class="modal-title">⭐ Laisser un avis</div>
+    <div class="star-picker" id="starPicker">
+      <span onclick="setEtoile(1)">⭐</span>
+      <span onclick="setEtoile(2)">⭐</span>
+      <span onclick="setEtoile(3)">⭐</span>
+      <span onclick="setEtoile(4)">⭐</span>
+      <span onclick="setEtoile(5)">⭐</span>
+    </div>
+    <p style="text-align:center;font-size:13px;color:#8A95A8;margin-bottom:12px;" id="etoileLabel">Sélectionnez une note</p>
+    <textarea id="avisTexte" class="form-control" placeholder="Votre commentaire..." rows="3" style="margin-bottom:12px;"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="fermerAvis()">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="soumettreAvis()">Publier</button>
     </div>
   </div>
 </div>
 
 <a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
 
-
-
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script><script src="js/sounds.js"></script><script src="js/app.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/sounds.js"></script>
+<script src="js/app.js"></script>
 <script>
 const user = getSession();
+let pdfEnCours = null;
+let etoilesChoisies = 5;
+let captureBase64 = null;
 
-async function loadPdfs() {
-  const grid = document.getElementById('pdfGrid');
+// ── CHARGER CATALOGUE ──
+async function loadCatalogue() {
+  const grid = document.getElementById('catalogueGrid');
   const { data: items, error } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false });
+
   if (error || !items || !items.length) {
-    grid.innerHTML = '<div style="text-align:center;color:#8A95A8;padding:40px;grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">📭</div>Aucun document disponible pour le moment. Revenez bientôt !</div>';
+    grid.innerHTML = `
+      <div style="text-align:center;color:#8A95A8;padding:60px;grid-column:1/-1;">
+        <div style="font-size:64px;margin-bottom:16px;">📭</div>
+        <h3 style="color:var(--navy);margin-bottom:8px;">Aucun document disponible</h3>
+        <p>Revenez bientôt, de nouveaux documents arrivent !</p>
+      </div>`;
     return;
   }
-  grid.innerHTML = items.map(p => `
-    <div class="card observe-animate" style="border-top:4px solid var(--navy);text-align:center;">
-      <div style="font-size:48px;margin-bottom:12px;">📄</div>
-      <h4 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:8px;">${p.titre}</h4>
-      <p style="font-size:13px;color:#8A95A8;margin-bottom:16px;line-height:1.5;">${p.description || 'Document mis à disposition par GlobalDoc.'}</p>
-      <p style="font-size:11px;color:#aaa;margin-bottom:16px;">📅 ${formatTime(p.created_at)}</p>
-      <a href="${p.url}" target="_blank" class="btn btn-primary" style="width:100%;">📥 Télécharger gratuitement</a>
-    </div>
-  `).join('');
-}
-loadPdfs();
 
+  // Charger les avis et likes pour chaque PDF
+  const { data: avis } = await db.from('avis_pdf').select('pdf_id, etoiles');
+  const { data: likes } = await db.from('likes_pdf').select('pdf_id, user_id');
+
+  grid.innerHTML = '';
+  items.forEach((p, i) => {
+    // Calculer moyenne étoiles
+    const avisDoc = (avis || []).filter(a => a.pdf_id === p.id);
+    const moyenne = avisDoc.length ? (avisDoc.reduce((s, a) => s + a.etoiles, 0) / avisDoc.length).toFixed(1) : null;
+    const etoiles = moyenne ? '⭐'.repeat(Math.round(moyenne)) : '☆☆☆☆☆';
+
+    // Likes
+    const nbLikes = (likes || []).filter(l => l.pdf_id === p.id).length;
+    const dejàLiké = user && (likes || []).some(l => l.pdf_id === p.id && l.user_id === user.id);
+
+    const card = document.createElement('div');
+    card.className = 'pdf-card reveal';
+    card.style.animationDelay = (i * 0.1) + 's';
+    card.innerHTML = `
+      <div class="pdf-cover">
+        ${p.image_url ? '<img src="' + p.image_url + '" alt="' + p.titre + '">' : '📄'}
+      </div>
+      <div class="pdf-body">
+        <div class="pdf-title">${p.titre}</div>
+        <div class="pdf-desc">${p.description || 'Document professionnel GlobalDoc.'}</div>
+        <div class="pdf-stats">
+          <span class="stars">${etoiles}</span>
+          <span>${avisDoc.length} avis</span>
+          <span>❤️ ${nbLikes}</span>
+        </div>
+        <div class="pdf-prix">${(p.prix || 1000).toLocaleString()} FCFA</div>
+        <button class="btn-acheter" onclick="ouvrirMascotte(${p.id}, '${p.titre.replace(/'/g,"\\'")}', ${p.prix || 1000}, '${p.url}')">
+          🛒 Acheter ce document
+        </button>
+        <button class="btn-like ${dejàLiké ? 'liked' : ''}" id="like-${p.id}" onclick="toggleLike(${p.id})">
+          ${dejàLiké ? '❤️' : '🤍'} J'aime (${nbLikes})
+        </button>
+        <button class="btn-avis" onclick="ouvrirAvis(${p.id}, '${p.titre.replace(/'/g,"\\'")}')">
+          ⭐ Laisser un avis
+        </button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Activer scroll reveal
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+
+// ── MASCOTTE PAIEMENT ──
+function ouvrirMascotte(id, titre, prix, url) {
+  if (!user) {
+    showToast('Connectez-vous pour acheter un document.', 'error');
+    setTimeout(() => window.location.href = 'compte.html', 1500);
+    return;
+  }
+  pdfEnCours = { id, titre, prix, url };
+  document.getElementById('mascotteInfo').innerHTML = `
+    <div>📄 <strong>${titre}</strong></div>
+    <div style="margin-top:8px;">Montant à envoyer : <strong>${prix.toLocaleString()} FCFA</strong></div>
+    <div style="margin-top:4px;">Numéro Wave : <strong>+225 0501233818</strong></div>`;
+  document.getElementById('mascotteOverlay').classList.add('show');
+  captureBase64 = null;
+  document.getElementById('capturePreview').style.display = 'none';
+
+  // Animer les étapes une par une
+  ['step1','step2','step3','step4'].forEach((id, i) => {
+    document.getElementById(id).classList.remove('show');
+    setTimeout(() => document.getElementById(id).classList.add('show'), 300 + i * 400);
+  });
+}
+
+function fermerMascotte() {
+  document.getElementById('mascotteOverlay').classList.remove('show');
+  pdfEnCours = null;
+}
+
+function previewCapture(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    captureBase64 = e.target.result;
+    const preview = document.getElementById('capturePreview');
+    preview.src = captureBase64;
+    preview.style.display = 'block';
+    showToast('Capture chargée ! Cliquez sur "Envoyer".', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function confirmerAchat() {
+  if (!pdfEnCours) return;
+  if (!captureBase64) {
+    showToast('Veuillez d\'abord envoyer votre capture d\'écran !', 'error');
+    return;
+  }
+
+  try {
+    await db.from('achats_pdf').insert({
+      pdf_id: pdfEnCours.id,
+      pdf_titre: pdfEnCours.titre,
+      user_id: user.id,
+      user_name: user.name,
+      montant: pdfEnCours.prix,
+      capture_url: captureBase64,
+      statut: 'en_attente'
+    });
+
+    fermerMascotte();
+    showToast('✅ Demande envoyée ! Votre PDF sera débloqué après vérification.', 'success');
+
+    // Vérifier si admin a déjà validé (dans ce cas débloquer direct)
+    setTimeout(() => verifierAcces(pdfEnCours), 2000);
+  } catch(e) {
+    showToast('Erreur lors de l\'envoi. Réessayez.', 'error');
+  }
+}
+
+async function verifierAcces(pdf) {
+  const { data } = await db.from('achats_pdf')
+    .select('statut')
+    .eq('pdf_id', pdf.id)
+    .eq('user_id', user.id)
+    .eq('statut', 'valide')
+    .limit(1);
+
+  if (data && data.length > 0) {
+    showToast('🎉 Paiement confirmé ! Téléchargement en cours...', 'success');
+    setTimeout(() => window.open(pdf.url, '_blank'), 1000);
+  }
+}
+
+// ── LIKES ──
+async function toggleLike(pdfId) {
+  if (!user) {
+    showToast('Connectez-vous pour liker.', 'error');
+    return;
+  }
+  const btn = document.getElementById('like-' + pdfId);
+  const { data: existing } = await db.from('likes_pdf').select('id').eq('pdf_id', pdfId).eq('user_id', user.id).limit(1);
+
+  if (existing && existing.length > 0) {
+    await db.from('likes_pdf').delete().eq('pdf_id', pdfId).eq('user_id', user.id);
+    btn.classList.remove('liked');
+    btn.innerHTML = '🤍 J\'aime';
+  } else {
+    await db.from('likes_pdf').insert({ pdf_id: pdfId, user_id: user.id });
+    btn.classList.add('liked');
+    btn.innerHTML = '❤️ J\'aime';
+    playSuccess && playSuccess();
+  }
+  loadCatalogue();
+}
+
+// ── AVIS ──
+let pdfAvisEnCours = null;
+function ouvrirAvis(id, titre) {
+  if (!user) {
+    showToast('Connectez-vous pour laisser un avis.', 'error');
+    return;
+  }
+  pdfAvisEnCours = { id, titre };
+  etoilesChoisies = 5;
+  setEtoile(5);
+  document.getElementById('avisTexte').value = '';
+  document.getElementById('avisOverlay').classList.add('show');
+}
+
+function fermerAvis() {
+  document.getElementById('avisOverlay').classList.remove('show');
+}
+
+function setEtoile(n) {
+  etoilesChoisies = n;
+  const labels = ['','Très mauvais 😞','Mauvais 😕','Correct 😐','Bien 😊','Excellent 🤩'];
+  document.getElementById('etoileLabel').textContent = labels[n];
+  document.querySelectorAll('#starPicker span').forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+}
+
+async function soumettreAvis() {
+  const texte = document.getElementById('avisTexte').value.trim();
+  if (!texte) { showToast('Écrivez un commentaire.', 'error'); return; }
+  if (!pdfAvisEnCours) return;
+
+  await db.from('avis_pdf').insert({
+    pdf_id: pdfAvisEnCours.id,
+    user_id: user.id,
+    user_name: user.name,
+    etoiles: etoilesChoisies,
+    commentaire: texte
+  });
+
+  fermerAvis();
+  showToast('⭐ Merci pour votre avis !', 'success');
+  loadCatalogue();
+}
+
+// ── DEMANDE PDF ──
 async function sendPdfRequest() {
   const req = document.getElementById('pdfRequest').value.trim();
   if (!req) { showToast('Décrivez le document que vous recherchez.', 'error'); return; }
   const userName = user?.name || 'Visiteur';
   await db.from('demandes_pdf').insert({ demande: req, user_name: userName });
-  redirectWhatsApp(`Bonjour GlobalDoc\n\nJe cherche un document PDF :\n"${req}"\n\nPouvez-vous m'aider ?\n\n${userName}`);
+  redirectWhatsApp('Bonjour GlobalDoc\n\nJe cherche un document PDF :\n"' + req + '"\n\nPouvez-vous m\'aider ?\n\n' + userName);
   document.getElementById('pdfRequest').value = '';
-  showToast('Demande envoyée ! Redirection vers WhatsApp...', 'success');
+  showToast('Demande envoyée !', 'success');
 }
+
+// ── SCROLL REVEAL ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 100);
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── HAMBURGER ──
+function toggleMenu() {
+  var nav = document.querySelector('.navbar-nav');
+  var btn = document.getElementById('hamburgerBtn');
+  if (!nav || !btn) return;
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.navbar-nav a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      var nav = document.querySelector('.navbar-nav');
+      var btn = document.getElementById('hamburgerBtn');
+      if (nav) nav.classList.remove('open');
+      if (btn) btn.classList.remove('open');
+    });
+  });
+  loadCatalogue();
+});
 </script>
 </body>
 </html>

@@ -805,3 +805,122 @@ tbody td { padding: 12px 16px; font-size: 13.5px; color: var(--text); }
   }
   .navbar-nav a:last-child { border-bottom: none; }
 }
+
+/* ══════════════════════════════════════════
+   ✨ ANIMATIONS GLOBALDOC
+══════════════════════════════════════════ */
+
+/* Fade in depuis le bas */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in depuis la gauche */
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Fade in depuis la droite */
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Zoom doux */
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Flottement logo */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* Brillance dorée */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Pulsation bouton */
+@keyframes pulseCTA {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(201,168,76,0); }
+}
+
+/* Classes d'animation */
+.animate-fadeInUp    { animation: fadeInUp 0.7s ease both; }
+.animate-fadeInLeft  { animation: fadeInLeft 0.7s ease both; }
+.animate-fadeInRight { animation: fadeInRight 0.7s ease both; }
+.animate-zoomIn      { animation: zoomIn 0.6s ease both; }
+.animate-float       { animation: float 3s ease-in-out infinite; }
+
+/* Délais */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+
+/* Scroll reveal - caché par défaut */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cards hover animées */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 40px rgba(27,42,74,0.15) !important;
+}
+
+/* Bouton CTA pulsant */
+.btn-primary {
+  animation: pulseCTA 2.5s ease-in-out infinite;
+}
+
+/* Titre hero brillant */
+.hero h1 {
+  background: linear-gradient(90deg, #C9A84C, #fff, #C9A84C);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Logo flottant */
+.navbar-logo {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Ligne de chargement en haut de page */
+.page-loader {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--navy), var(--gold));
+  z-index: 9999;
+  animation: loadBar 1.2s ease forwards;
+}
+@keyframes loadBar {
+  to { width: 100%; opacity: 0; }
+}
+
+/* Compteurs animés */
+.counter { font-variant-numeric: tabular-nums; }
+
