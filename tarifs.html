@@ -20,6 +20,13 @@
 </head>
 <body>
 <div class="page-loader"></div>
+<div id="scroll-progress"></div>
+<div id="custom-cursor"></div>
+<div id="cursor-trail"></div>
+<div class="page-loader"></div>
+<div id="scroll-progress"></div>
+<div id="custom-cursor"></div>
+<div id="cursor-trail"></div>
 <nav class="navbar">
   <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
   <ul class="navbar-nav">
@@ -115,6 +122,42 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.12 });
 reveals.forEach(el => observer.observe(el));
+</script>
+
+<script>
+// ── BARRE PROGRESSION SCROLL ──
+window.addEventListener('scroll', () => {
+  const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  const bar = document.getElementById('scroll-progress');
+  if (bar) bar.style.width = scrolled + '%';
+});
+
+// ── SCROLL REVEAL ──
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 100);
+      revealObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ── CURSEUR PC ──
+if (window.innerWidth > 768) {
+  const cursor = document.getElementById('custom-cursor');
+  const trail = document.getElementById('cursor-trail');
+  if (cursor && trail) {
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX - 10 + 'px';
+      cursor.style.top = e.clientY - 10 + 'px';
+      setTimeout(() => {
+        trail.style.left = e.clientX - 20 + 'px';
+        trail.style.top = e.clientY - 20 + 'px';
+      }, 80);
+    });
+  }
+}
 </script>
 </body>
 </html>
