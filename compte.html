@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Compte — GlobalDoc DGD.CI</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GlobalDoc">
+  <meta name="theme-color" content="#1B2A4A">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -288,6 +295,86 @@ if (window.innerWidth > 768) {
         trail.style.top = e.clientY - 20 + 'px';
       }, 80);
     });
+  }
+}
+</script>
+
+<script>
+// ── PWA SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/globaldoc/sw.js')
+      .then(reg => console.log('SW enregistré'))
+      .catch(err => console.log('SW erreur:', err));
+  });
+}
+
+// ── BANNIÈRE INSTALLATION ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  // Ne pas afficher si déjà installé
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.innerHTML = `
+    <div style="
+      position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+      background:linear-gradient(135deg,#1B2A4A,#243660);
+      color:white; padding:14px 20px; border-radius:16px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.3);
+      display:flex; align-items:center; gap:12px;
+      z-index:9999; max-width:320px; width:90%;
+      border:1px solid rgba(201,168,76,0.4);
+      animation: slideUp 0.5s ease;
+    ">
+      <span style="font-size:32px;">📱</span>
+      <div style="flex:1;">
+        <div style="font-weight:700; font-size:14px; margin-bottom:2px;">Installer GlobalDoc</div>
+        <div style="font-size:12px; opacity:0.8;">Accès rapide depuis votre écran</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button onclick="installApp()" style="
+          background:#C9A84C; color:#1B2A4A; border:none;
+          padding:8px 14px; border-radius:8px; font-weight:700;
+          font-size:13px; cursor:pointer; white-space:nowrap;
+        ">Installer</button>
+        <button onclick="document.getElementById('install-banner').remove()" style="
+          background:rgba(255,255,255,0.1); color:white; border:none;
+          padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;
+        ">Plus tard</button>
+      </div>
+    </div>
+    <style>
+      @keyframes slideUp {
+        from { opacity:0; transform:translateX(-50%) translateY(20px); }
+        to { opacity:1; transform:translateX(-50%) translateY(0); }
+      }
+    </style>
+  `;
+  document.body.appendChild(banner);
+  
+  // Disparaît après 15 secondes
+  setTimeout(() => {
+    const b = document.getElementById('install-banner');
+    if (b) b.remove();
+  }, 15000);
+}
+
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner')?.remove();
+  if (result.outcome === 'accepted') {
+    showToast && showToast('Application installée ! Cherchez GlobalDoc sur votre écran.', 'success');
   }
 }
 </script>
