@@ -34,25 +34,12 @@
 <div id="scroll-progress"></div>
 <div id="custom-cursor"></div>
 <div id="cursor-trail"></div>
-<nav class="navbar">
-  <a href="index.html" class="navbar-logo"><div class="logo-text"><span class="dgd">DGD<span>.CI</span></span><span class="globaldoc">GlobalDoc</span></div></a>
-  <ul class="navbar-nav">
-    <li><a href="index.html">🏠 Accueil</a></li>
-    <li><a href="services.html">📋 Services</a></li>
-    <li><a href="commander.html">📦 Commander</a></li>
-    <li><a href="bibliotheque.html">📚 Bibliothèque</a></li>
-    <li><a href="communaute.html" class="active">🗨️ Communauté</a></li>
-    <li><a href="messagerie.html" data-auth="logged">💬 Messages</a></li>
-  </ul>
-  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <div class="navbar-actions">
-    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
-    <a href="compte.html" class="btn btn-outline btn-sm" data-auth="guest">👤 Connexion</a>
-    <button onclick="logout()" class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;" data-auth="logged">Déconnexion</button>
-  </div>
-</nav>
+<!-- TOP HEADER -->
+<header class="top-header">
+  <a href="index.html" style="color:rgba(255,255,255,0.7);font-size:22px;text-decoration:none;">←</a>
+  <div style="flex:1;font-size:15px;font-weight:800;color:white;text-align:center;">GlobalDoc DGD.CI</div>
+  <a href="compte.html" style="color:white;font-size:20px;text-decoration:none;">👤</a>
+</header>
 <div class="page-wrapper">
   <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:48px 2rem;text-align:center;">
     <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:white;margin-bottom:10px;">🗨️ <span style="color:var(--gold);">Communauté</span> GlobalDoc</h1>
@@ -286,5 +273,14 @@ async function installApp() {
   }
 }
 </script>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span><span>Accueil</span></a>
+  <a href="services.html"><span class="icon">📋</span><span>Services</span></a>
+  <a href="commander.html"><span class="icon">🛒</span><span>Commander</span></a>
+  <a href="bibliotheque.html"><span class="icon">📚</span><span>Bibliothèque</span></a>
+  <a href="compte.html"><span class="icon">👤</span><span>Compte</span></a>
+</nav>
 </body>
 </html>

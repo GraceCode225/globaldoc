@@ -4,379 +4,206 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Compte — GlobalDoc DGD.CI</title>
+  <meta name="theme-color" content="#1B2A4A">
   <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="GlobalDoc">
-  <meta name="theme-color" content="#1B2A4A">
-  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
 </head>
 <body>
-<div class="page-loader"></div>
-<div id="scroll-progress"></div>
-<div id="custom-cursor"></div>
-<div id="cursor-trail"></div>
-<div class="page-loader"></div>
-<div id="scroll-progress"></div>
-<div id="custom-cursor"></div>
-<div id="cursor-trail"></div>
 
-<nav class="navbar">
-  <a href="index.html" class="navbar-logo">
-    <div class="logo-text">
-      <span class="dgd">DGD<span>.CI</span></span>
-      <span class="globaldoc">GlobalDoc</span>
-    </div>
-  </a>
-  <ul class="navbar-nav">
-    <li><a href="index.html">🏠 Accueil</a></li>
-    <li><a href="services.html">📋 Services</a></li>
-    <li><a href="commander.html">📦 Commander</a></li>
-    <li><a href="bibliotheque.html">📚 Bibliothèque</a></li>
-    <li><a href="communaute.html">🗨️ Communauté</a></li>
-  </ul>
-  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <div class="navbar-actions">
-    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
+<div id="toast" class="toast"></div>
+
+<!-- HEADER -->
+<header class="top-header">
+  <div class="logo-zone">
+    <span class="dgd">DGD<span style="color:white;">.CI</span></span>
+    <span class="sub">GlobalDoc</span>
   </div>
-</nav>
+  <div style="flex:1;"></div>
+</header>
 
-<div class="page-wrapper" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 70px);background:linear-gradient(135deg,#1B2A4A 0%,#243660 100%);padding:40px 1rem;">
-
-  <div style="width:100%;max-width:460px;">
-
-    <!-- Logo centré -->
-    <div style="text-align:center;margin-bottom:32px;animation:fadeInUp 0.6s ease;">
-      <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--gold);letter-spacing:3px;">DGD<span style="color:white;">.CI</span></div>
-      <div style="color:rgba(255,255,255,0.6);font-size:12px;letter-spacing:5px;margin-top:4px;">GLOBALDOC</div>
-    </div>
-
-    <!-- Onglets -->
-    <div style="display:flex;background:rgba(255,255,255,0.08);border-radius:12px;padding:4px;margin-bottom:24px;">
-      <button onclick="switchTab('login')" id="tab-login"
-        style="flex:1;padding:10px;border:none;border-radius:9px;background:var(--gold);color:var(--navy-dark);font-weight:700;cursor:pointer;font-size:14px;transition:all 0.3s;">
-        Connexion
-      </button>
-      <button onclick="switchTab('register')" id="tab-register"
-        style="flex:1;padding:10px;border:none;border-radius:9px;background:transparent;color:rgba(255,255,255,0.7);font-weight:600;cursor:pointer;font-size:14px;transition:all 0.3s;">
-        S'inscrire
-      </button>
-    </div>
-
-    <!-- Formulaire Connexion -->
-    <div id="form-login" class="card" style="animation:fadeInUp 0.5s ease;">
-      <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:6px;">Connexion</h2>
-      <p style="color:#8A95A8;font-size:13px;margin-bottom:24px;">Entrez votre nom et votre code personnel.</p>
-
-      <div class="form-group">
-        <label class="form-label">Votre nom</label>
-        <input type="text" id="loginName" class="form-control" placeholder="Ex: Jean Konan" autocomplete="off">
+<!-- ZONE AUTH -->
+<div id="zoneAuth">
+  <!-- CONNECTÉ -->
+  <div id="zoneConnecte" style="display:none;">
+    <div class="compte-header">
+      <div style="font-size:40px;margin-bottom:8px;">👤</div>
+      <div class="compte-name" id="userName">Utilisateur</div>
+      <div class="compte-email" id="userEmail">email@example.com</div>
+      <div class="compte-actions">
+        <a href="commander.html" class="compte-action-btn">🛒 Commander</a>
+        <a href="bibliotheque.html" class="compte-action-btn">📚 Bibliothèque</a>
       </div>
-      <div class="form-group">
-        <label class="form-label">Votre code personnel</label>
-        <div style="position:relative;">
-          <input type="password" id="loginCode" class="form-control" placeholder="Votre code secret" autocomplete="off" style="padding-right:50px;">
-          <button onclick="togglePass('loginCode')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;">👁️</button>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">Mon compte GlobalDoc</div>
+      <a href="commander.html" class="menu-item">
+        <span class="icon">📦</span> Mes commandes <span class="arrow">›</span>
+      </a>
+      <a href="bibliotheque.html" class="menu-item">
+        <span class="icon">📚</span> Mes PDF achetés <span class="arrow">›</span>
+      </a>
+      <a href="communaute.html" class="menu-item">
+        <span class="icon">💬</span> Communauté <span class="arrow">›</span>
+      </a>
+      <a href="messagerie.html" class="menu-item">
+        <span class="icon">✉️</span> Messagerie <span class="arrow">›</span>
+      </a>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">Support</div>
+      <a href="https://wa.me/2250142116172" class="menu-item" target="_blank">
+        <span class="icon">💬</span> Chat WhatsApp <span class="arrow">›</span>
+      </a>
+      <a href="tarifs.html" class="menu-item">
+        <span class="icon">💰</span> Nos tarifs <span class="arrow">›</span>
+      </a>
+      <a href="services.html" class="menu-item">
+        <span class="icon">📋</span> Nos services <span class="arrow">›</span>
+      </a>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">Paramètres</div>
+      <button class="menu-item danger" onclick="deconnexion()">
+        <span class="icon">🚪</span> Se déconnecter <span class="arrow">›</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- NON CONNECTÉ -->
+  <div id="zoneDeconnecte">
+    <div style="background:var(--navy);padding:24px 16px 40px;text-align:center;color:white;">
+      <div style="font-size:56px;margin-bottom:12px;">👤</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:6px;">Bienvenue sur GlobalDoc</div>
+      <div style="font-size:13px;opacity:0.8;">Connectez-vous pour accéder à vos commandes et documents</div>
+    </div>
+
+    <div class="auth-card" style="margin-top:-20px;position:relative;z-index:1;">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login',this)">Connexion</button>
+        <button class="auth-tab" onclick="switchTab('register',this)">Inscription</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="tabLogin">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="votre@email.com">
         </div>
-      </div>
-
-      <button onclick="doLogin()" class="btn btn-primary" style="width:100%;margin-top:8px;">
-        Se connecter →
-      </button>
-
-      <p style="text-align:center;margin-top:16px;font-size:13px;color:#8A95A8;">
-        Pas encore de compte ? <a href="javascript:void(0)" onclick="switchTab('register')" style="color:var(--gold);font-weight:600;">S'inscrire</a>
-      </p>
-    </div>
-
-    <!-- Formulaire Inscription -->
-    <div id="form-register" class="card" style="display:none;animation:fadeInUp 0.5s ease;">
-      <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:6px;">Créer un compte</h2>
-      <p style="color:#8A95A8;font-size:13px;margin-bottom:24px;">Choisissez un nom et un code personnel pour vous connecter.</p>
-
-      <div class="form-group">
-        <label class="form-label">Votre nom complet</label>
-        <input type="text" id="regName" class="form-control" placeholder="Ex: Jean Konan Oulai" autocomplete="off">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Choisissez un code personnel</label>
-        <div style="position:relative;">
-          <input type="password" id="regCode" class="form-control" placeholder="Minimum 4 caractères" autocomplete="off" style="padding-right:50px;">
-          <button onclick="togglePass('regCode')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;">👁️</button>
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <input type="password" id="loginPwd" class="form-control" placeholder="••••••••">
         </div>
-        <p style="font-size:11px;color:#8A95A8;margin-top:6px;">⚠️ Retenez bien votre code, il vous servira à vous connecter.</p>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Confirmez votre code</label>
-        <input type="password" id="regCode2" class="form-control" placeholder="Répétez votre code" autocomplete="off">
+        <button class="btn btn-primary btn-block" onclick="seConnecter()">Se connecter</button>
       </div>
 
-      <button onclick="doRegister()" class="btn btn-primary" style="width:100%;margin-top:8px;">
-        Créer mon compte ✓
-      </button>
+      <!-- REGISTER -->
+      <div id="tabRegister" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Prénom & Nom</label>
+          <input type="text" id="regName" class="form-control" placeholder="Votre nom complet">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="regEmail" class="form-control" placeholder="votre@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <input type="password" id="regPwd" class="form-control" placeholder="Minimum 6 caractères">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="sInscrire()">Créer mon compte</button>
+      </div>
 
-      <p style="text-align:center;margin-top:16px;font-size:13px;color:#8A95A8;">
-        Déjà inscrit ? <a href="javascript:void(0)" onclick="switchTab('login')" style="color:var(--gold);font-weight:600;">Se connecter</a>
-      </p>
+      <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--gray2);">
+        Ou continuez sans compte →
+        <a href="commander.html" style="color:var(--navy);font-weight:700;"> Commander</a>
+      </div>
     </div>
 
-    <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:11px;margin-top:20px;">
-      🔒 Vos données sont sécurisées et stockées sur nos serveurs Firebase.
-    </p>
+    <div class="menu-section" style="margin-top:8px;">
+      <div class="menu-section-title">Liens utiles</div>
+      <a href="services.html" class="menu-item"><span class="icon">📋</span> Nos services <span class="arrow">›</span></a>
+      <a href="tarifs.html" class="menu-item"><span class="icon">💰</span> Nos tarifs <span class="arrow">›</span></a>
+      <a href="bibliotheque.html" class="menu-item"><span class="icon">📚</span> Bibliothèque PDF <span class="arrow">›</span></a>
+      <a href="https://wa.me/2250142116172" class="menu-item" target="_blank"><span class="icon">💬</span> WhatsApp <span class="arrow">›</span></a>
+    </div>
   </div>
 </div>
 
-<a href="javascript:void(0)" onclick="redirectWhatsApp()" class="whatsapp-float">💬</a>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span><span>Accueil</span></a>
+  <a href="services.html"><span class="icon">📋</span><span>Services</span></a>
+  <a href="commander.html"><span class="icon">🛒</span><span>Commander</span></a>
+  <a href="bibliotheque.html"><span class="icon">📚</span><span>Bibliothèque</span></a>
+  <a href="compte.html" class="active"><span class="icon">👤</span><span>Compte</span></a>
+</nav>
 
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/sounds.js"></script>
-<script src="js/app.js"></script>
 <script>
-
-// Rediriger si déjà connecté
-if (getSession()) window.location.href = 'index.html';
-
-function switchTab(tab) {
-  const isLogin = tab === 'login';
-  document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
-  document.getElementById('form-register').style.display = isLogin ? 'none' : 'block';
-  document.getElementById('tab-login').style.background = isLogin ? 'var(--gold)' : 'transparent';
-  document.getElementById('tab-login').style.color = isLogin ? 'var(--navy-dark)' : 'rgba(255,255,255,0.7)';
-  document.getElementById('tab-register').style.background = !isLogin ? 'var(--gold)' : 'transparent';
-  document.getElementById('tab-register').style.color = !isLogin ? 'var(--navy-dark)' : 'rgba(255,255,255,0.7)';
-  Sounds.click();
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3500);
 }
 
-function togglePass(id) {
-  const el = document.getElementById(id);
-  el.type = el.type === 'password' ? 'text' : 'password';
+function switchTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabLogin').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('tabRegister').style.display = tab === 'register' ? '' : 'none';
 }
 
-async function doLogin() {
-  const name = document.getElementById('loginName').value.trim();
-  const code = document.getElementById('loginCode').value.trim();
-
-  if (!name || !code) { showToast('Remplissez tous les champs.', 'error'); return; }
-
-  // Vérifier si c'est l'admin
-  if (code === ADMIN_CODE) {
-    const user = { id: 'admin', name: name || 'Admin', code: ADMIN_CODE, role: 'admin' };
-    setSession(user);
-    showToast('Bienvenue Admin !', 'success');
-    setTimeout(() => window.location.href = 'admin.html', 1000);
-    return;
-  }
-
-  try {
-    const { data, error } = await db.from('users').select('*').eq('name', name).eq('code', code).single();
-    if (error || !data) { showToast('Nom ou code incorrect.', 'error'); return; }
-
-    setSession(data);
-    await setOnlineStatus(data.id, true);
-    showToast(`Bienvenue ${data.name} !`, 'success');
-    setTimeout(() => window.location.href = 'index.html', 1000);
-
-  } catch(e) {
-    showToast('Erreur de connexion. Réessayez.', 'error');
-  }
+async function seConnecter() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd = document.getElementById('loginPwd').value;
+  if (!email || !pwd) { showToast('Remplissez tous les champs', 'error'); return; }
+  const { data, error } = await db.auth.signInWithPassword({ email, password: pwd });
+  if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
+  showToast('✅ Connecté !', 'success');
+  afficherProfil(data.user);
 }
 
-async function doRegister() {
+async function sInscrire() {
   const name = document.getElementById('regName').value.trim();
-  const code = document.getElementById('regCode').value.trim();
-  const code2 = document.getElementById('regCode2').value.trim();
-
-  if (!name || !code || !code2) { showToast('Remplissez tous les champs.', 'error'); return; }
-  if (code.length < 4) { showToast('Le code doit faire au moins 4 caractères.', 'error'); return; }
-  if (code !== code2) { showToast('Les codes ne correspondent pas.', 'error'); return; }
-  if (code === ADMIN_CODE) { showToast('Ce code est réservé.', 'error'); return; }
-
-  try {
-    const { data: existing } = await db.from('users').select('id').eq('name', name).maybeSingle();
-    if (existing) { showToast('Ce nom est déjà utilisé. Choisissez un autre.', 'error'); return; }
-
-    const userId = generateId();
-    const userData = { id: userId, name, code, role: 'user', online: false };
-
-    const { error } = await db.from('users').insert(userData);
-    if (error) throw error;
-
-    setSession(userData);
-    await setOnlineStatus(userId, true);
-    showToast(`Compte créé ! Bienvenue ${name} 🎉`, 'success');
-    setTimeout(() => window.location.href = 'index.html', 1200);
-
-  } catch(e) {
-    showToast('Erreur lors de la création. Réessayez.', 'error');
-  }
+  const email = document.getElementById('regEmail').value.trim();
+  const pwd = document.getElementById('regPwd').value;
+  if (!name || !email || !pwd) { showToast('Remplissez tous les champs', 'error'); return; }
+  const { data, error } = await db.auth.signUp({ email, password: pwd, options: { data: { full_name: name } } });
+  if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
+  showToast('✅ Compte créé ! Vérifiez votre email.', 'success');
 }
 
-// Connexion avec Enter
-document.addEventListener('keypress', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('form-login').style.display !== 'none') doLogin();
-    else doRegister();
-  }
-});
-</script>
-
-<script>
-function toggleMenu() {
-  var nav = document.querySelector('.navbar-nav');
-  var btn = document.getElementById('hamburgerBtn');
-  if (!nav || !btn) return;
-  nav.classList.toggle('open');
-  btn.classList.toggle('open');
+async function deconnexion() {
+  await db.auth.signOut();
+  document.getElementById('zoneConnecte').style.display = 'none';
+  document.getElementById('zoneDeconnecte').style.display = '';
+  showToast('Déconnecté', 'info');
 }
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.navbar-nav a').forEach(function(a) {
-    a.addEventListener('click', function() {
-      var nav = document.querySelector('.navbar-nav');
-      var btn = document.getElementById('hamburgerBtn');
-      if (nav) nav.classList.remove('open');
-      if (btn) btn.classList.remove('open');
-    });
-  });
+
+function afficherProfil(user) {
+  document.getElementById('zoneDeconnecte').style.display = 'none';
+  document.getElementById('zoneConnecte').style.display = '';
+  document.getElementById('userName').textContent = user.user_metadata?.full_name || 'Utilisateur';
+  document.getElementById('userEmail').textContent = user.email;
+}
+
+// Vérifier session
+db.auth.getSession().then(({ data }) => {
+  if (data.session?.user) afficherProfil(data.session.user);
 });
-</script>
-
-<script>
-// ── SCROLL REVEAL ──
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => entry.target.classList.add('visible'), i * 80);
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-reveals.forEach(el => observer.observe(el));
-</script>
-
-<script>
-// ── BARRE PROGRESSION SCROLL ──
-window.addEventListener('scroll', () => {
-  const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-  const bar = document.getElementById('scroll-progress');
-  if (bar) bar.style.width = scrolled + '%';
+db.auth.onAuthStateChange((event, session) => {
+  if (session?.user) afficherProfil(session.user);
 });
 
-// ── SCROLL REVEAL ──
-const revealObs = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => entry.target.classList.add('visible'), i * 100);
-      revealObs.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-
-// ── CURSEUR PC ──
-if (window.innerWidth > 768) {
-  const cursor = document.getElementById('custom-cursor');
-  const trail = document.getElementById('cursor-trail');
-  if (cursor && trail) {
-    document.addEventListener('mousemove', (e) => {
-      cursor.style.left = e.clientX - 10 + 'px';
-      cursor.style.top = e.clientY - 10 + 'px';
-      setTimeout(() => {
-        trail.style.left = e.clientX - 20 + 'px';
-        trail.style.top = e.clientY - 20 + 'px';
-      }, 80);
-    });
-  }
-}
-</script>
-
-<script>
-// ── PWA SERVICE WORKER ──
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/globaldoc/sw.js')
-      .then(reg => console.log('SW enregistré'))
-      .catch(err => console.log('SW erreur:', err));
-  });
-}
-
-// ── BANNIÈRE INSTALLATION ──
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  showInstallBanner();
-});
-
-function showInstallBanner() {
-  // Ne pas afficher si déjà installé
-  if (window.matchMedia('(display-mode: standalone)').matches) return;
-  
-  const banner = document.createElement('div');
-  banner.id = 'install-banner';
-  banner.innerHTML = `
-    <div style="
-      position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
-      background:linear-gradient(135deg,#1B2A4A,#243660);
-      color:white; padding:14px 20px; border-radius:16px;
-      box-shadow:0 8px 32px rgba(0,0,0,0.3);
-      display:flex; align-items:center; gap:12px;
-      z-index:9999; max-width:320px; width:90%;
-      border:1px solid rgba(201,168,76,0.4);
-      animation: slideUp 0.5s ease;
-    ">
-      <span style="font-size:32px;">📱</span>
-      <div style="flex:1;">
-        <div style="font-weight:700; font-size:14px; margin-bottom:2px;">Installer GlobalDoc</div>
-        <div style="font-size:12px; opacity:0.8;">Accès rapide depuis votre écran</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <button onclick="installApp()" style="
-          background:#C9A84C; color:#1B2A4A; border:none;
-          padding:8px 14px; border-radius:8px; font-weight:700;
-          font-size:13px; cursor:pointer; white-space:nowrap;
-        ">Installer</button>
-        <button onclick="document.getElementById('install-banner').remove()" style="
-          background:rgba(255,255,255,0.1); color:white; border:none;
-          padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;
-        ">Plus tard</button>
-      </div>
-    </div>
-    <style>
-      @keyframes slideUp {
-        from { opacity:0; transform:translateX(-50%) translateY(20px); }
-        to { opacity:1; transform:translateX(-50%) translateY(0); }
-      }
-    </style>
-  `;
-  document.body.appendChild(banner);
-  
-  // Disparaît après 15 secondes
-  setTimeout(() => {
-    const b = document.getElementById('install-banner');
-    if (b) b.remove();
-  }, 15000);
-}
-
-async function installApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const result = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('install-banner')?.remove();
-  if (result.outcome === 'accepted') {
-    showToast && showToast('Application installée ! Cherchez GlobalDoc sur votre écran.', 'success');
-  }
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/globaldoc/sw.js');
 </script>
 </body>
 </html>
