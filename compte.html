@@ -12,6 +12,30 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "ee9d25cd-63b4-4cb7-bd77-05bba2ba9c32",
+        notifyButton: { enable: false },
+        promptOptions: {
+          slidedown: {
+            prompts: [{
+              type: "push",
+              autoPrompt: true,
+              text: {
+                actionMessage: "Recevez les nouveaux documents et promotions GlobalDoc !",
+                acceptButton: "Oui, autoriser",
+                cancelButton: "Plus tard"
+              },
+              delay: { pageViews: 1, timeDelay: 4 }
+            }]
+          }
+        }
+      });
+    });
+  </script>
 </head>
 <body>
 

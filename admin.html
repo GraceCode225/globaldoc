@@ -249,6 +249,7 @@
       .acard { padding: 24px; }
     }
   </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 </head>
 <body>
 
@@ -778,7 +779,21 @@ async function envoyerNotif() {
     });
   }
 
-  showToast('🔔 Notification envoyée !', 'success');
+  // Appel API OneSignal REST pour push réel
+  try {
+    await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        app_id: 'ee9d25cd-63b4-4cb7-bd77-05bba2ba9c32',
+        included_segments: ['Total Subscriptions'],
+        headings: { fr: emoji + ' ' + title },
+        contents: { fr: body },
+        url: 'https://gracecode225.github.io/globaldoc/' + url
+      })
+    });
+  } catch(e) {}
+  showToast('🔔 Notification envoyée à tous !', 'success');
 
   // Historique
   const hist = document.getElementById('notifHistory');
