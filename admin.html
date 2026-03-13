@@ -4,779 +4,791 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — GlobalDoc DGD.CI</title>
+  <meta name="theme-color" content="#1B2A4A">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { padding-bottom: 0; background: #F5F5F5; }
+
+    /* ── LOGIN ── */
+    #loginPage {
+      min-height: 100vh;
+      background: #1B2A4A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .login-logo { text-align: center; margin-bottom: 24px; }
+    .login-logo .big { font-size: 32px; font-weight: 900; color: #1B2A4A; }
+    .login-logo .big span { color: #C9A84C; }
+
+    /* ── HEADER ADMIN ── */
+    .admin-top {
+      background: linear-gradient(135deg, #1B2A4A, #243660);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-top .title { color: #C9A84C; font-size: 15px; font-weight: 900; }
+    .admin-top .sub { color: rgba(255,255,255,0.6); font-size: 11px; }
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    /* ── STATS ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: #1B2A4A;
+      padding: 0 12px 12px;
+      gap: 8px;
+    }
+    .stat-box {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 24px; font-weight: 900; color: #C9A84C; }
+    .stat-box .lbl { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; margin-top: 2px; }
+
+    /* ── TABS ── */
+    .admin-tabs {
+      display: flex;
+      overflow-x: auto;
+      background: white;
+      border-bottom: 2px solid #E0E0E0;
+      scrollbar-width: none;
+      position: sticky;
+      top: 56px;
+      z-index: 90;
+    }
+    .admin-tabs::-webkit-scrollbar { display: none; }
+    .atab {
+      padding: 13px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #888;
+      cursor: pointer;
+      white-space: nowrap;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      background: none;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.2s;
+    }
+    .atab.active { color: #1B2A4A; border-bottom-color: #C9A84C; }
+
+    /* ── PANELS ── */
+    .apanel { display: none; padding: 14px; }
+    .apanel.active { display: block; }
+
+    /* ── CARDS ── */
+    .acard {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 14px;
+    }
+    .acard h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1B2A4A;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #F0F0F0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── PROGRESS ── */
+    .prog-wrap {
+      background: #F0F0F0;
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1B2A4A, #C9A84C);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .prog-label { font-size: 12px; color: #888; text-align: center; font-weight: 700; min-height: 20px; }
+
+    /* ── PDF CARD ── */
+    .pdf-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    }
+    .pdf-thumb {
+      width: 56px;
+      height: 72px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #1B2A4A, #243660);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .pdf-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── ACHAT CARD ── */
+    .achat-row {
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      border-left: 4px solid #C9A84C;
+    }
+    .achat-capture {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 10px 0;
+      cursor: pointer;
+      border: 2px solid #E0E0E0;
+    }
+
+    /* ── NOTIF PANEL ── */
+    .notif-preview {
+      background: #1B2A4A;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      color: white;
+    }
+    .notif-preview .preview-title { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; }
+    .notif-bubble {
+      background: white;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .notif-bubble .icon { font-size: 28px; }
+    .notif-bubble .ntitle { font-size: 13px; font-weight: 800; color: #1B2A4A; }
+    .notif-bubble .nbody { font-size: 12px; color: #555; margin-top: 2px; }
+
+    /* ── TOGGLE ── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .tgl {
+      width: 46px; height: 24px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .tgl.on { background: #C9A84C; }
+    .tgl::after {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: left 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+    .tgl.on::after { left: 25px; }
+
+    /* ── DESKTOP ── */
+    @media (min-width: 768px) {
+      .admin-top { padding: 14px 40px; }
+      .stats-bar { padding: 0 40px 16px; gap: 16px; }
+      .stat-box .num { font-size: 32px; }
+      .admin-tabs { padding: 0 40px; top: 56px; }
+      .atab { padding: 15px 24px; font-size: 14px; }
+      .apanel { padding: 24px 40px; max-width: 900px; }
+      .acard { padding: 24px; }
+    }
+  </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <a href="index.html" class="navbar-logo">
-    <div class="logo-text">
-      <span class="dgd">DGD<span>.CI</span></span>
-      <span class="globaldoc">GlobalDoc</span>
+<div id="toast" class="toast"></div>
+
+<!-- ══ PAGE LOGIN ══ -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div style="font-size:48px;margin-bottom:8px;">⚙️</div>
+      <div class="big">DGD<span>.CI</span></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;font-weight:600;">Tableau de bord Admin</div>
     </div>
-  </a>
-  <ul class="navbar-nav">
-    <li><a href="index.html">🏠 Accueil</a></li>
-    <li><a href="admin.html" class="active">⚙️ Admin</a></li>
-  </ul>
-  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <div class="navbar-actions">
-    <button class="btn-sound" id="soundBtn" onclick="toggleSound()">🔊</button>
-    <button onclick="logout()" class="btn btn-sm" style="background:var(--danger);color:white;">Déconnexion</button>
-  </div>
-</nav>
-
-<div class="page-wrapper">
-
-  <div style="background:linear-gradient(135deg,#1B2A4A,#243660);padding:36px 2rem;text-align:center;">
-    <h1 style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);">⚙️ Tableau de Bord Admin</h1>
-    <p style="color:rgba(255,255,255,0.7);margin-top:8px;">Bienvenue, Djeket Bogui Joël — Accès total</p>
-  </div>
-
-  <!-- STATS RAPIDES -->
-  <div class="section" style="max-width:1200px;">
-    <div class="grid-4" id="statsCards">
-      <div class="card" style="text-align:center;border-top:4px solid var(--gold);">
-        <div style="font-size:36px;font-weight:900;color:var(--gold);" id="statUsers">—</div>
-        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">Utilisateurs inscrits</div>
-      </div>
-      <div class="card" style="text-align:center;border-top:4px solid var(--success);">
-        <div style="font-size:36px;font-weight:900;color:var(--success);" id="statOnline">—</div>
-        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">En ligne maintenant</div>
-      </div>
-      <div class="card" style="text-align:center;border-top:4px solid #2E86AB;">
-        <div style="font-size:36px;font-weight:900;color:#2E86AB;" id="statCommandes">—</div>
-        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">Commandes reçues</div>
-      </div>
-      <div class="card" style="text-align:center;border-top:4px solid var(--navy);">
-        <div style="font-size:36px;font-weight:900;color:var(--navy);" id="statPdfs">—</div>
-        <div style="font-size:13px;color:#8A95A8;margin-top:4px;">PDFs en bibliothèque</div>
-      </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" id="loginEmail" class="form-control" placeholder="admin@globaldoc.ci" autofocus>
     </div>
-
-    <!-- ONGLETS ADMIN -->
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:32px 0 20px;">
-      <button onclick="showTab('users')" class="btn btn-navy" id="tab-users">👥 Utilisateurs</button>
-      <button onclick="showTab('commandes')" class="btn btn-outline" id="tab-commandes">📦 Commandes</button>
-      <button onclick="showTab('annonces')" class="btn btn-outline" id="tab-annonces">📢 Annonces</button>
-      <button onclick="showTab('videos')" class="btn btn-outline" id="tab-videos">🎬 Vidéos</button>
-      <button onclick="showTab('pdfs')" class="btn btn-outline" id="tab-pdfs">📚 Bibliothèque PDF</button>
+    <div class="form-group">
+      <label class="form-label">Mot de passe</label>
+      <input type="password" id="loginPwd" class="form-control" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-
-    <!-- ═══ ONGLET UTILISATEURS ═══ -->
-    <div id="panel-users">
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">👥 Tous les utilisateurs</h3>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Code</th>
-              <th>Statut</th>
-              <th>Inscrit le</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="usersTable"><tr><td colspan="6" style="text-align:center;color:#8A95A8;">Chargement...</td></tr></tbody>
-        </table>
-      </div>
+    <button class="btn btn-primary btn-block" onclick="doLogin()" style="margin-top:4px;">🔐 Connexion Admin</button>
+    <div id="loginErr" style="color:#E53935;font-size:13px;text-align:center;margin-top:12px;display:none;font-weight:700;"></div>
+    <div style="text-align:center;margin-top:16px;">
+      <a href="index.html" style="font-size:12px;color:#888;text-decoration:none;">← Retour au site</a>
     </div>
-
-    <!-- ═══ ONGLET COMMANDES ═══ -->
-    <div id="panel-commandes" style="display:none;">
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">📦 Commandes en temps réel</h3>
-      <div id="commandesList"></div>
-    </div>
-
-    <!-- ═══ ONGLET ANNONCES ═══ -->
-    <div id="panel-annonces" style="display:none;">
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">📢 Publier une annonce</h3>
-      <div class="card" style="margin-bottom:24px;">
-        <div class="form-group">
-          <label class="form-label">Titre de l'annonce</label>
-          <input type="text" id="annonceTitle" class="form-control" placeholder="Ex: Promotion de la rentrée !">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Contenu</label>
-          <textarea id="annonceContent" class="form-control" rows="4" placeholder="Contenu de votre annonce..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">URL Image (optionnel)</label>
-          <input type="url" id="annonceImage" class="form-control" placeholder="https://...">
-        </div>
-        <button onclick="publishAnnonce()" class="btn btn-primary">📢 Publier l'annonce</button>
-      </div>
-
-      <h4 style="color:var(--navy);margin-bottom:12px;">Annonces publiées</h4>
-      <div id="annoncesList" class="grid-3"></div>
-    </div>
-
-    <!-- ═══ ONGLET VIDÉOS ═══ -->
-    <div id="panel-videos" style="display:none;">
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">🎬 Publier une vidéo</h3>
-      <div class="card" style="margin-bottom:24px;">
-        <div class="form-group">
-          <label class="form-label">Titre de la vidéo</label>
-          <input type="text" id="videoTitle" class="form-control" placeholder="Ex: Présentation de GlobalDoc">
-        </div>
-        <div class="form-group">
-          <label class="form-label">URL YouTube (format embed)</label>
-          <input type="url" id="videoUrl" class="form-control" placeholder="https://www.youtube.com/embed/XXXXXXXXX">
-          <p style="font-size:11px;color:#8A95A8;margin-top:4px;">Sur YouTube : Partager → Intégrer → copier le lien src</p>
-        </div>
-        <button onclick="publishVideo()" class="btn btn-primary">🎬 Publier la vidéo</button>
-      </div>
-      <div id="videosList" class="grid-3"></div>
-    </div>
-
-    <!-- ═══ ONGLET PDFS ═══ -->
-    <div id="panel-pdfs" style="display:none;">
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:16px;">📚 Ajouter un PDF à la bibliothèque</h3>
-      <div class="card" style="margin-bottom:24px;">
-        <div class="form-group">
-          <label class="form-label">Titre du document</label>
-          <input type="text" id="pdfTitle" class="form-control" placeholder="Ex: Guide de rédaction de CV">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Description courte</label>
-          <input type="text" id="pdfDesc" class="form-control" placeholder="Ex: Un guide complet pour rédiger un CV parfait.">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Prix (FCFA) — minimum 1000</label>
-          <input type="number" id="pdfPrix" class="form-control" placeholder="Ex: 1000" min="1000" value="1000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Image de couverture (optionnel)</label>
-          <input type="file" id="pdfCover" accept="image/*" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fichier PDF</label>
-          <input type="file" id="pdfFile" accept=".pdf" class="form-control">
-        </div>
-        <div id="uploadProgress" style="display:none;margin-bottom:12px;">
-          <div style="background:#E0E4ED;border-radius:8px;height:8px;overflow:hidden;">
-            <div id="progressBar" style="width:0%;height:100%;background:var(--gold);transition:width 0.3s;border-radius:8px;"></div>
-          </div>
-          <p style="font-size:12px;color:#8A95A8;margin-top:4px;" id="progressText">0%</p>
-        </div>
-        <button onclick="uploadPdf()" class="btn btn-primary">📤 Ajouter le PDF</button>
-      </div>
-
-      <!-- Achats en attente -->
-      <h4 style="color:var(--navy);margin-bottom:12px;">💰 Achats en attente de validation</h4>
-      <div id="achatsList" style="margin-bottom:24px;"></div>
-
-      <h4 style="color:var(--navy);margin-bottom:12px;">📚 PDFs en bibliothèque</h4>
-      <div id="adminPdfList" class="grid-3"></div>
-    </div>
-
   </div>
 </div>
 
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard" style="display:none;">
 
+  <div class="admin-top">
+    <div>
+      <div class="title">⚙️ Admin GlobalDoc</div>
+      <div class="sub" id="adminEmail">—</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">🚪 Quitter</button>
+  </div>
 
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-box"><div class="num" id="sPdfs">—</div><div class="lbl">PDFs</div></div>
+    <div class="stat-box"><div class="num" id="sAchats" style="color:#FF9800;">—</div><div class="lbl">Achats</div></div>
+    <div class="stat-box"><div class="num" id="sCmds" style="color:#4CAF50;">—</div><div class="lbl">Commandes</div></div>
+    <div class="stat-box"><div class="num" id="sAnn" style="color:#2196F3;">—</div><div class="lbl">Annonces</div></div>
+  </div>
 
+  <!-- ONGLETS -->
+  <div class="admin-tabs">
+    <button class="atab active" onclick="goTab('pdfs',this)">📚 PDFs</button>
+    <button class="atab" onclick="goTab('achats',this)">💳 Achats</button>
+    <button class="atab" onclick="goTab('notifs',this)">🔔 Notifications</button>
+    <button class="atab" onclick="goTab('affiches',this)">🖼️ Affiches</button>
+    <button class="atab" onclick="goTab('commandes',this)">📦 Commandes</button>
+    <button class="atab" onclick="goTab('annonces',this)">📢 Annonces</button>
+    <button class="atab" onclick="goTab('site',this)">🌐 Site</button>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/sounds.js"></script>
-<script src="js/app.js"></script>
-<script>
+  <!-- ══ PDFs ══ -->
+  <div id="apanel-pdfs" class="apanel active">
+    <div class="acard">
+      <h3>📤 Ajouter un PDF</h3>
+      <div class="form-group">
+        <label class="form-label">Titre *</label>
+        <input type="text" id="pdfTitle" class="form-control" placeholder="Ex: CV Professionnel 2025">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="pdfDesc" class="form-control" rows="2" placeholder="Courte description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prix en FCFA *</label>
+        <input type="number" id="pdfPrix" class="form-control" value="1000" min="1000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fichier PDF * <span style="color:#888;font-size:11px;">(max 50 Mo)</span></label>
+        <input type="file" id="pdfFile" class="form-control" accept="application/pdf">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Image couverture <span style="color:#888;font-size:11px;">(optionnel)</span></label>
+        <input type="file" id="pdfCover" class="form-control" accept="image/*">
+      </div>
+      <div id="uploadWrap" style="display:none;">
+        <div class="prog-wrap"><div class="prog-fill" id="progBar"></div></div>
+        <div class="prog-label" id="progLabel">0%</div>
+      </div>
+      <div id="uploadResult" style="display:none;padding:10px 14px;border-radius:8px;font-weight:700;font-size:13px;margin-top:8px;"></div>
+      <button class="btn btn-primary btn-block" onclick="doUpload()" style="margin-top:12px;">
+        📤 Ajouter le PDF à la bibliothèque
+      </button>
+    </div>
 
-// Vérifier accès admin - sécurité renforcée
-(function() {
-  try {
-    const adminUser = getSession();
-    if (!adminUser || !adminUser.code || adminUser.code !== 'DGDCI_ADMIN_2025') {
-      alert('⛔ Accès refusé. Vous devez être connecté en tant qu\'administrateur.');
-      window.location.replace('compte.html');
-      return;
-    }
-  } catch(e) {
-    window.location.replace('compte.html');
-  }
-})();
+    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin-bottom:10px;">
+      PDFs en ligne — <span id="pdfCount">0</span>
+    </div>
+    <div id="pdfList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+  </div>
 
-function showTab(tab) {
-  ['users','commandes','annonces','videos','pdfs'].forEach(t => {
-    document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
-    const btn = document.getElementById(`tab-${t}`);
-    if (btn) {
-      btn.className = t === tab ? 'btn btn-navy' : 'btn btn-outline';
-    }
-  });
-  Sounds.click();
-  if (tab === 'users') loadUsers();
-  if (tab === 'commandes') loadCommandes();
-  if (tab === 'annonces') loadAnnonces();
-  if (tab === 'videos') loadVideos();
-  if (tab === 'pdfs') { loadPdfs(); loadAchats(); }
-}
+  <!-- ══ ACHATS ══ -->
+  <div id="apanel-achats" class="apanel">
+    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin-bottom:12px;">💳 Achats en attente de validation</div>
+    <div id="achatList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+  </div>
 
-// ── STATS ──────────────────────────────────────────────
-async function loadStats() {
-  const { data: users } = await db.from('users').select('id, online');
-  const { count: cmdCount } = await db.from('commandes').select('*', { count: 'exact', head: true });
-  const { count: pdfCount } = await db.from('bibliotheque').select('*', { count: 'exact', head: true });
-  const total = users ? users.length : 0;
-  const online = users ? users.filter(u => u.online).length : 0;
-  document.getElementById('statUsers').textContent = total;
-  if (document.getElementById('statOnline')) document.getElementById('statOnline').textContent = online;
-  document.getElementById('statCommandes').textContent = cmdCount || 0;
-  document.getElementById('statPdfs').textContent = pdfCount || 0;
-}
-loadStats();
+  <!-- ══ NOTIFICATIONS ══ -->
+  <div id="apanel-notifs" class="apanel">
+    <div class="acard">
+      <h3>🔔 Envoyer une notification</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:16px;">La notification apparaîtra sur le téléphone de tous les utilisateurs qui ont accepté les notifications.</p>
 
-// ── UTILISATEURS ──────────────────────────────────────
-async function loadUsers() {
-  const tbody = document.getElementById('usersTable');
-  const { data: items } = await db.from('users').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#8A95A8;padding:20px;">Aucun utilisateur inscrit.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = items.map(u => {
-    const color = u.online ? 'var(--success)' : '#8A95A8';
-    const status = u.online ? '🟢 En ligne' : '⚫ Hors ligne';
-    return `
-    <tr>
-      <td><strong>${u.name}</strong></td>
-      <td><code style="background:#f0f4ff;padding:3px 8px;border-radius:6px;">${u.id}</code></td>
-      <td><span style="color:${color};">${status}</span></td>
-      <td>${formatTime(u.created_at)}</td>
-      <td><button onclick="deleteUser('${u.id}')" class="btn btn-danger btn-sm">🗑️</button></td>
-    </tr>
-  `}).join('');
-}
-
-async function deleteUser(id, name) {
-  if (!confirm(`Supprimer l'utilisateur "${name}" ?`)) return;
-  await db.from('users').delete().eq('id', id);
-  showToast(`Utilisateur "${name}" supprimé.`, 'success');
-  loadUsers();
-}
-
-// ── COMMANDES ──────────────────────────────────────────
-async function loadCommandes() {
-  const container = document.getElementById('commandesList');
-  const { data: items } = await db.from('commandes').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<p style="color:#8A95A8;text-align:center;">Aucune commande.</p>';
-    return;
-  }
-  container.innerHTML = items.map(cmd => {
-    const borderColor = cmd.status === 'en_attente' ? 'var(--gold)' : 'var(--success)';
-    const badgeClass = cmd.status === 'en_attente' ? 'badge-gold' : 'badge-green';
-    const statusText = cmd.status === 'en_attente' ? '⏳ En attente' : '✅ Traité';
-    return `
-    <div class="card" style="margin-bottom:16px;border-left:4px solid ${borderColor};">
-      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
-        <div>
-          <span class="badge badge-navy" style="margin-right:8px;">${cmd.id}</span>
-          <strong style="color:var(--navy);">${cmd.type_label}</strong>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <span class="badge ${badgeClass}">${statusText}</span>
-          <button onclick="toggleStatus('${cmd.id}','${cmd.status}')" class="btn btn-sm btn-outline">Changer statut</button>
+      <div class="notif-preview">
+        <div class="preview-title">Aperçu de la notification</div>
+        <div class="notif-bubble">
+          <div class="icon" id="prevEmoji">📢</div>
+          <div>
+            <div class="ntitle" id="prevTitle">Titre de la notification</div>
+            <div class="nbody" id="prevBody">Message de la notification...</div>
+          </div>
         </div>
       </div>
-      <p style="margin-top:10px;font-size:13px;color:#555;">${cmd.description}</p>
-      <p style="font-size:11px;color:#8A95A8;margin-top:6px;">👤 ${cmd.user_name} — 📅 ${formatTime(cmd.created_at)}</p>
-      <div style="margin-top:12px;">
-        <button onclick="openCommandeChat('${cmd.id}','${cmd.user_name}')" class="btn btn-primary btn-sm">💬 Répondre</button>
-        <button onclick="redirectWhatsApp('Bonjour ' + '${cmd.user_name}' + ', commande ${cmd.id}')" class="btn btn-sm" style="background:#25D366;color:white;margin-left:8px;">💬 WhatsApp</button>
+
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <input type="text" id="notifEmoji" class="form-control" placeholder="📢" maxlength="4" oninput="updatePreview()" style="font-size:22px;width:80px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titre *</label>
+        <input type="text" id="notifTitle" class="form-control" placeholder="Ex: Nouveau PDF disponible !" oninput="updatePreview()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message *</label>
+        <textarea id="notifBody" class="form-control" rows="3" placeholder="Ex: Découvrez notre nouveau modèle de CV professionnel..." oninput="updatePreview()"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lien (page à ouvrir)</label>
+        <select id="notifUrl" class="form-control">
+          <option value="bibliotheque.html">📚 Bibliothèque PDF</option>
+          <option value="index.html">🏠 Accueil</option>
+          <option value="services.html">📋 Services</option>
+          <option value="commander.html">🛒 Commander</option>
+          <option value="tarifs.html">💰 Tarifs</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="envoyerNotif()">🔔 Envoyer à tous les utilisateurs</button>
+    </div>
+
+    <div class="acard">
+      <h3>📋 Historique des notifications</h3>
+      <div id="notifHistory"><div style="color:#888;font-size:13px;">Aucune notification envoyée.</div></div>
+    </div>
+  </div>
+
+  <!-- ══ AFFICHES ══ -->
+  <div id="apanel-affiches" class="apanel">
+    <div class="acard">
+      <h3>🖼️ Publier une affiche sur l'accueil</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:16px;">Les affiches apparaissent dans le slider de la page d'accueil.</p>
+      <div class="form-group">
+        <label class="form-label">Titre *</label>
+        <input type="text" id="afficheTitle" class="form-control" placeholder="Ex: Promotion rentrée !">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <input type="text" id="afficheSub" class="form-control" placeholder="Ex: -20% sur tous les CV">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <input type="text" id="afficheEmoji" class="form-control" placeholder="🎉" maxlength="4" style="font-size:22px;width:80px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Page à ouvrir</label>
+        <select id="afficheUrl" class="form-control">
+          <option value="commander.html">🛒 Commander</option>
+          <option value="bibliotheque.html">📚 Bibliothèque</option>
+          <option value="services.html">📋 Services</option>
+          <option value="tarifs.html">💰 Tarifs</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Texte du bouton</label>
+        <input type="text" id="afficheBtnText" class="form-control" placeholder="Commander →">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="publierAffiche()">🖼️ Publier l'affiche</button>
+    </div>
+    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin-bottom:10px;">Affiches actives</div>
+    <div id="afficheList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+  </div>
+
+  <!-- ══ COMMANDES ══ -->
+  <div id="apanel-commandes" class="apanel">
+    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin-bottom:12px;">📦 Toutes les commandes</div>
+    <div id="cmdList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+  </div>
+
+  <!-- ══ ANNONCES ══ -->
+  <div id="apanel-annonces" class="apanel">
+    <div class="acard">
+      <h3>📢 Publier une annonce</h3>
+      <div class="form-group">
+        <label class="form-label">Titre *</label>
+        <input type="text" id="annTitle" class="form-control" placeholder="Ex: Nouveauté GlobalDoc !">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contenu *</label>
+        <textarea id="annContent" class="form-control" rows="4" placeholder="Votre message..."></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="publierAnnonce()">📢 Publier</button>
+    </div>
+    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin-bottom:10px;">Annonces publiées</div>
+    <div id="annList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+  </div>
+
+  <!-- ══ SITE ══ -->
+  <div id="apanel-site" class="apanel">
+    <div class="acard">
+      <h3>🌐 Contrôle du site</h3>
+      <div class="toggle-row">
+        <div><div style="font-weight:700;font-size:14px;">📚 Bibliothèque PDF</div><div style="font-size:11px;color:#888;">Visible pour les visiteurs</div></div>
+        <button class="tgl on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div><div style="font-weight:700;font-size:14px;">⚡ Flash Sale</div><div style="font-size:11px;color:#888;">Barre de compte à rebours</div></div>
+        <button class="tgl on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div><div style="font-weight:700;font-size:14px;">💬 Communauté</div><div style="font-size:11px;color:#888;">Accès à la page communauté</div></div>
+        <button class="tgl on" onclick="this.classList.toggle('on')"></button>
       </div>
     </div>
-  `}).join('');
-}
-
-async function toggleStatus(id, current) {
-  const newStatus = current === 'en_attente' ? 'traite' : 'en_attente';
-  await db.from('commandes').update({ status: newStatus }).eq('id', id);
-  showToast('Statut mis à jour.', 'success');
-  loadCommandes();
-}
-
-function openCommandeChat(orderId, clientName) {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
-    <div class="modal" style="max-width:600px;width:95%;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h3 class="modal-title">💬 Chat avec ${clientName}</h3>
-        <button onclick="this.closest('.modal-overlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button>
+    <div class="acard">
+      <h3>📞 Contact</h3>
+      <div class="form-group">
+        <label class="form-label">Numéro WhatsApp</label>
+        <input type="text" class="form-control" value="2250142116172">
       </div>
-      <div class="chat-container">
-        <div class="chat-messages" id="adminChatMessages"></div>
-        <div class="chat-input-area">
-          <input type="text" id="adminChatInput" class="chat-input" placeholder="Votre réponse..." onkeypress="if(event.key==='Enter') adminSendMessage('${orderId}')">
-          <button onclick="adminSendMessage('${orderId}')" class="btn btn-primary" style="border-radius:24px;padding:10px 20px;">Envoyer</button>
-        </div>
+      <div class="form-group">
+        <label class="form-label">Numéro Wave</label>
+        <input type="text" class="form-control" value="0501233818">
       </div>
+      <button class="btn btn-navy btn-block" onclick="showToast('✅ Sauvegardé !','success')">💾 Sauvegarder</button>
     </div>
-  `;
-  document.body.appendChild(overlay);
-  const chatMsgs = document.getElementById('adminChatMessages');
-  db.from('messages').select('*').eq('commande_id', orderId).order('created_at').then(({ data }) => {
-    if (data) data.forEach(msg => {
-      const isAdm = msg.sender === 'admin';
-      const div = document.createElement('div');
-      div.className = `message ${isAdm ? 'sent' : 'received'}`;
-      div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
-      chatMsgs.appendChild(div);
-      chatMsgs.scrollTop = chatMsgs.scrollHeight;
-    });
-  });
-  db.channel('admin_' + orderId)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `commande_id=eq.${orderId}` }, payload => {
-      const msg = payload.new;
-      const isAdm = msg.sender === 'admin';
-      const div = document.createElement('div');
-      div.className = `message ${isAdm ? 'sent' : 'received'}`;
-      div.innerHTML = `<div>${(msg.text||'').replace(/\n/g,'<br>')}</div><div class="message-time">${msg.sender_name} — ${formatTimeShort(msg.created_at)}</div>`;
-      chatMsgs.appendChild(div);
-      chatMsgs.scrollTop = chatMsgs.scrollHeight;
-      Sounds.message();
-    }).subscribe();
-}
+    <a href="index.html" class="btn btn-outline btn-block" style="margin-top:4px;">🏠 Voir le site</a>
+  </div>
 
-async function adminSendMessage(orderId) {
-  const input = document.getElementById('adminChatInput');
-  const text = input.value.trim();
-  if (!text) return;
-  await db.from('messages').insert({ commande_id: orderId, text, sender: 'admin', sender_name: 'GlobalDoc' });
-  input.value = '';
-  Sounds.click();
-}
-
-// ── ANNONCES ──────────────────────────────────────────
-async function publishAnnonce() {
-  const titre = document.getElementById('annonceTitle').value.trim();
-  const contenu = document.getElementById('annonceContent').value.trim();
-  const image = document.getElementById('annonceImage').value.trim();
-  if (!titre || !contenu) { showToast('Remplissez le titre et le contenu.', 'error'); return; }
-  await db.from('annonces').insert({ titre, contenu, image });
-  document.getElementById('annonceTitle').value = '';
-  document.getElementById('annonceContent').value = '';
-  document.getElementById('annonceImage').value = '';
-  showToast('Annonce publiée !', 'success');
-  loadAnnonces();
-}
-
-async function loadAnnonces() {
-  const container = document.getElementById('annoncesList');
-  const { data: items } = await db.from('annonces').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) { container.innerHTML = '<p style="color:#8A95A8;">Aucune annonce.</p>'; return; }
-  container.innerHTML = items.map(a => {
-    const img = a.image ? '<img src="' + a.image + '" style="width:100%;border-radius:8px;margin-bottom:10px;max-height:140px;object-fit:cover;">' : '';
-    return `
-    <div class="card" style="border-left:4px solid var(--gold);">
-      ${img}
-      <h4 style="color:var(--navy);margin-bottom:8px;">${a.titre}</h4>
-      <p style="font-size:13px;color:#555;">${a.contenu}</p>
-      <p style="font-size:11px;color:#8A95A8;margin-top:8px;">📅 ${formatTime(a.created_at)}</p>
-      <button onclick="deleteAnnonce(${a.id})" class="btn btn-danger btn-sm" style="margin-top:10px;">🗑️ Supprimer</button>
-    </div>
-  `}).join('');
-}
-
-async function deleteAnnonce(id) {
-  if (!confirm('Supprimer cette annonce ?')) return;
-  await db.from('annonces').delete().eq('id', id);
-  showToast('Annonce supprimée.', 'success');
-  loadAnnonces();
-}
-
-// ── VIDÉOS ────────────────────────────────────────────
-async function publishVideo() {
-  const titre = document.getElementById('videoTitle').value.trim();
-  const url = document.getElementById('videoUrl').value.trim();
-  if (!titre || !url) { showToast('Remplissez tous les champs.', 'error'); return; }
-  await db.from('videos').insert({ titre, url });
-  document.getElementById('videoTitle').value = '';
-  document.getElementById('videoUrl').value = '';
-  showToast('Vidéo publiée !', 'success');
-  loadVideos();
-}
-
-async function loadVideos() {
-  const container = document.getElementById('videosList');
-  const { data: items } = await db.from('videos').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) { container.innerHTML = '<p style="color:#8A95A8;">Aucune vidéo.</p>'; return; }
-  container.innerHTML = items.map(v => `
-    <div class="card">
-      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:10px;">
-        <iframe src="${v.url}" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allowfullscreen></iframe>
-      </div>
-      <h4 style="color:var(--navy);">${v.titre}</h4>
-      <button onclick="deleteVideo(${v.id})" class="btn btn-danger btn-sm" style="margin-top:10px;">🗑️ Supprimer</button>
-    </div>
-  `).join('');
-}
-
-async function deleteVideo(id) {
-  if (!confirm('Supprimer cette vidéo ?')) return;
-  await db.from('videos').delete().eq('id', id);
-  showToast('Vidéo supprimée.', 'success');
-  loadVideos();
-}
-
-// ── PDFs ──────────────────────────────────────────────
-async function uploadPdf() {
-  const titre = document.getElementById('pdfTitle').value.trim();
-  const desc = document.getElementById('pdfDesc').value.trim();
-  const prix = parseInt(document.getElementById('pdfPrix').value) || 1000;
-  const file = document.getElementById('pdfFile').files[0];
-  const coverFile = document.getElementById('pdfCover').files[0];
-  if (!titre || !file) { showToast('Titre et fichier PDF requis.', 'error'); return; }
-  if (prix < 1000) { showToast('Le prix minimum est 1000 FCFA.', 'error'); return; }
-
-  const progressWrap = document.getElementById('uploadProgress');
-  const progressBar = document.getElementById('progressBar');
-  const progressText = document.getElementById('progressText');
-  progressWrap.style.display = 'block';
-  progressBar.style.width = '20%';
-  progressText.textContent = 'Upload en cours...';
-
-  try {
-    // Upload PDF
-    const fileName = Date.now() + '_' + file.name.replace(/\s/g, '_');
-    const { error: pdfError } = await db.storage.from('bibliotheque').upload(fileName, file);
-    if (pdfError) throw pdfError;
-    const { data: urlData } = db.storage.from('bibliotheque').getPublicUrl(fileName);
-    const url = urlData.publicUrl;
-    progressBar.style.width = '60%';
-
-    // Upload image couverture si présente
-    let imageUrl = null;
-    if (coverFile) {
-      const coverName = 'cover_' + Date.now() + '_' + coverFile.name.replace(/\s/g, '_');
-      const { error: coverError } = await db.storage.from('bibliotheque').upload(coverName, coverFile);
-      if (!coverError) {
-        const { data: coverUrlData } = db.storage.from('bibliotheque').getPublicUrl(coverName);
-        imageUrl = coverUrlData.publicUrl;
-      }
-    }
-    progressBar.style.width = '80%';
-
-    const { data: insertData, error: insertError } = await db.from('bibliotheque').insert({ 
-      titre, 
-      description: desc || '', 
-      url, 
-      prix: parseInt(prix) || 1000, 
-      image_url: imageUrl || null, 
-      size: parseInt(file.size) || 0
-    }).select();
-    
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      throw new Error('Erreur sauvegarde : ' + insertError.message + ' (code: ' + insertError.code + ')');
-    }
-
-    progressBar.style.width = '100%';
-    progressText.textContent = '100%';
-    showToast('✅ PDF ajouté à la bibliothèque !', 'success');
-    ['pdfTitle','pdfDesc','pdfPrix','pdfFile','pdfCover'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = id === 'pdfPrix' ? '1000' : '';
-    });
-    setTimeout(() => { progressWrap.style.display = 'none'; }, 1000);
-    loadPdfs();
-    loadAchats();
-  } catch(e) {
-    showToast('Erreur upload : ' + e.message, 'error');
-    progressWrap.style.display = 'none';
-  }
-}
-
-async function loadPdfs() {
-  const container = document.getElementById('adminPdfList');
-  const { data: items } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<p style="color:#8A95A8;text-align:center;padding:20px;">📭 Aucun PDF dans la bibliothèque.</p>';
-    return;
-  }
-  container.innerHTML = items.map(p => {
-    const desc = p.description || '';
-    const prix = p.prix || 1000;
-    return `
-    <div class="card" style="border-top:4px solid var(--navy);">
-      ${p.image_url ? '<img src="' + p.image_url + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:10px;">' : '<div style="font-size:36px;margin-bottom:10px;text-align:center;">📄</div>'}
-      <h4 style="color:var(--navy);margin-bottom:4px;">${p.titre}</h4>
-      <p style="font-size:12px;color:#8A95A8;margin-bottom:8px;">${desc}</p>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <span style="color:var(--gold);font-weight:700;font-size:16px;">${prix.toLocaleString()} FCFA</span>
-        <input type="number" value="${prix}" min="1000" style="width:100px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;" id="prix-${p.id}">
-        <button onclick="modifierPrix(${p.id})" class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:12px;">✏️ Modifier</button>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="${p.url}" target="_blank" class="btn btn-navy btn-sm">👁️ Voir</a>
-        <button onclick="deletePdf(${p.id},'${p.url}')" class="btn btn-danger btn-sm">🗑️ Supprimer</button>
-      </div>
-    </div>
-  `}).join('');
-}
-
-async function modifierPrix(id) {
-  const newPrix = parseInt(document.getElementById('prix-' + id).value);
-  if (!newPrix || newPrix < 1000) { showToast('Prix minimum : 1000 FCFA', 'error'); return; }
-  await db.from('bibliotheque').update({ prix: newPrix }).eq('id', id);
-  showToast('Prix mis à jour !', 'success');
-  loadPdfs();
-}
-
-async function loadAchats() {
-  const container = document.getElementById('achatsList');
-  if (!container) return;
-  const { data: items } = await db.from('achats_pdf').select('*').eq('statut', 'en_attente').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<p style="color:#8A95A8;padding:12px;">✅ Aucun achat en attente.</p>';
-    return;
-  }
-  container.innerHTML = items.map(a => `
-    <div class="card" style="margin-bottom:12px;border-left:4px solid var(--gold);display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
-      <div style="flex:1;min-width:200px;">
-        <strong>${a.user_name}</strong> veut acheter <strong>${a.pdf_titre}</strong>
-        <div style="font-size:12px;color:#8A95A8;">Montant : ${a.montant ? a.montant.toLocaleString() : '?'} FCFA — ${formatTime(a.created_at)}</div>
-      </div>
-      ${a.capture_url ? '<img src="' + a.capture_url + '" style="height:80px;border-radius:8px;cursor:pointer;" onclick="window.open(this.src)" title="Voir la capture">' : '<span style="color:#8A95A8;font-size:13px;">Pas de capture</span>'}
-      <div style="display:flex;gap:8px;">
-        <button onclick="validerAchat(${a.id}, ${a.pdf_id})" class="btn btn-sm" style="background:var(--success);color:white;">✅ Valider</button>
-        <button onclick="refuserAchat(${a.id})" class="btn btn-danger btn-sm">❌ Refuser</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function validerAchat(achatId, pdfId) {
-  await db.from('achats_pdf').update({ statut: 'valide' }).eq('id', achatId);
-  showToast('✅ Achat validé ! Le PDF est débloqué pour le client.', 'success');
-  loadAchats();
-}
-
-async function refuserAchat(achatId) {
-  await db.from('achats_pdf').update({ statut: 'refuse' }).eq('id', achatId);
-  showToast('❌ Achat refusé.', 'success');
-  loadAchats();
-}
-
-async function deletePdf(id, url) {
-  if (!confirm('Supprimer ce PDF ?')) return;
-  await db.from('bibliotheque').delete().eq('id', id);
-  // Supprimer le fichier du storage
-  try {
-    const fileName = url.split('/').pop();
-    await db.storage.from('bibliotheque').remove([fileName]);
-  } catch(e) {}
-  showToast('PDF supprimé.', 'success');
-  loadPdfs();
-}
-
-// Charger utilisateurs par défaut
-loadUsers();
-</script>
+</div><!-- fin dashboard -->
 
 <script>
-function toggleMenu() {
-  var nav = document.querySelector('.navbar-nav');
-  var btn = document.getElementById('hamburgerBtn');
-  if (!nav || !btn) return;
-  nav.classList.toggle('open');
-  btn.classList.toggle('open');
-}
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.navbar-nav a').forEach(function(a) {
-    a.addEventListener('click', function() {
-      var nav = document.querySelector('.navbar-nav');
-      var btn = document.getElementById('hamburgerBtn');
-      if (nav) nav.classList.remove('open');
-      if (btn) btn.classList.remove('open');
-    });
-  });
-});
-</script>
-</body>
-</html>
-minute: '2-digit' });
+// ── CONFIG SUPABASE (seule source de données)
+const SUPABASE_URL = 'https://zalkgxqjsjpbeqflgxbn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphbGtneHFqc2pwYmVxZmxneGJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM4MzAsImV4cCI6MjA4Nzk1OTgzMH0.58oMq-G3QWts07CM-exvS0JB4IEPV3ROSFmwE252ohw';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const WHATSAPP = '2250142116172';
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 4000);
 }
 
-// ── LOGIN ──
-async function loginAdmin() {
+function fmt(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleString('fr-FR', { day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit' });
+}
+
+// ── AUTH ──
+async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pwd = document.getElementById('loginPwd').value;
-  const errEl = document.getElementById('loginError');
-  errEl.style.display = 'none';
-  if (!email || !pwd) { errEl.textContent = 'Remplissez tous les champs.'; errEl.style.display = 'block'; return; }
-  const { data, error } = await db.auth.signInWithPassword({ email, password: pwd });
-  if (error) { errEl.textContent = 'Erreur : ' + error.message; errEl.style.display = 'block'; return; }
-  document.getElementById('adminName').textContent = data.user.email;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if (!email || !pwd) { err.textContent = 'Remplissez les deux champs.'; err.style.display='block'; return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+  if (error) { err.textContent = '❌ ' + error.message; err.style.display='block'; return; }
+  startDashboard(data.user.email);
+}
+
+function startDashboard(email) {
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('adminEmail').textContent = email;
   loadStats();
   loadPdfs();
 }
 
-async function logoutAdmin() {
-  await db.auth.signOut();
+async function doLogout() {
+  await sb.auth.signOut();
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('loginPage').style.display = 'flex';
 }
 
-// Vérifier session existante
-db.auth.getSession().then(({ data }) => {
-  if (data.session?.user) {
-    document.getElementById('adminName').textContent = data.session.user.email;
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadStats();
-    loadPdfs();
-  }
+sb.auth.getSession().then(({ data }) => {
+  if (data.session?.user) startDashboard(data.session.user.email);
 });
 
 // ── TABS ──
-function showTab(tab, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+function goTab(name, btn) {
+  document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + tab).classList.add('active');
-  if (tab === 'pdfs') loadPdfs();
-  if (tab === 'affiches') loadAffiches();
-  if (tab === 'achats') loadAchats();
-  if (tab === 'commandes') loadCommandes();
-  if (tab === 'annonces') loadAnnonces();
+  document.querySelectorAll('.apanel').forEach(p => p.classList.remove('active'));
+  document.getElementById('apanel-' + name).classList.add('active');
+  if (name === 'pdfs') loadPdfs();
+  else if (name === 'achats') loadAchats();
+  else if (name === 'affiches') loadAffiches();
+  else if (name === 'commandes') loadCommandes();
+  else if (name === 'annonces') loadAnnonces();
 }
 
 // ── STATS ──
 async function loadStats() {
-  const { count: pdfCount } = await db.from('bibliotheque').select('*', { count: 'exact', head: true });
-  const { count: cmdCount } = await db.from('commandes').select('*', { count: 'exact', head: true });
-  const { count: achatCount } = await db.from('achats_pdf').select('*', { count: 'exact', head: true }).eq('statut', 'en_attente');
-  const { count: annCount } = await db.from('annonces').select('*', { count: 'exact', head: true });
-  document.getElementById('statPdfs').textContent = pdfCount || 0;
-  document.getElementById('statCommandes').textContent = cmdCount || 0;
-  document.getElementById('statAchats').textContent = achatCount || 0;
-  document.getElementById('statAnnonces').textContent = annCount || 0;
+  const [p, a, c, an] = await Promise.all([
+    sb.from('bibliotheque').select('*', { count:'exact', head:true }),
+    sb.from('achats_pdf').select('*', { count:'exact', head:true }).eq('statut','en_attente'),
+    sb.from('commandes').select('*', { count:'exact', head:true }),
+    sb.from('annonces').select('*', { count:'exact', head:true })
+  ]);
+  document.getElementById('sPdfs').textContent = p.count || 0;
+  document.getElementById('sAchats').textContent = a.count || 0;
+  document.getElementById('sCmds').textContent = c.count || 0;
+  document.getElementById('sAnn').textContent = an.count || 0;
 }
 
 // ── UPLOAD PDF ──
-async function uploadPdf() {
+async function doUpload() {
   const titre = document.getElementById('pdfTitle').value.trim();
   const desc = document.getElementById('pdfDesc').value.trim();
   const prix = parseInt(document.getElementById('pdfPrix').value) || 1000;
   const file = document.getElementById('pdfFile').files[0];
-  const coverFile = document.getElementById('pdfCover').files[0];
+  const cover = document.getElementById('pdfCover').files[0];
+  const result = document.getElementById('uploadResult');
 
-  if (!titre) { showToast('⚠️ Titre obligatoire !', 'error'); return; }
-  if (!file) { showToast('⚠️ Choisissez un fichier PDF !', 'error'); return; }
-  if (prix < 1000) { showToast('⚠️ Prix minimum 1000 FCFA', 'error'); return; }
+  result.style.display = 'none';
 
-  const bar = document.getElementById('progressBar');
-  const label = document.getElementById('progressText');
-  const wrap = document.getElementById('uploadProgress');
-  wrap.style.display = 'block';
-  bar.style.width = '10%';
-  label.textContent = 'Upload PDF...';
+  if (!titre) { showMsg('⚠️ Le titre est obligatoire.', 'error'); return; }
+  if (!file) { showMsg('⚠️ Choisissez un fichier PDF.', 'error'); return; }
+  if (prix < 1000) { showMsg('⚠️ Prix minimum : 1000 FCFA.', 'error'); return; }
+
+  setProgress(5, '📄 Préparation...');
 
   try {
-    // 1. Upload PDF dans storage
-    const fileName = Date.now() + '_' + file.name.replace(/\s+/g, '_');
-    const { error: storageErr } = await db.storage.from('bibliotheque').upload(fileName, file, { upsert: false });
-    if (storageErr) throw new Error('Storage : ' + storageErr.message);
-    bar.style.width = '50%';
-    label.textContent = '50% — Récupération URL...';
+    // Étape 1 : upload PDF
+    const pdfName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    setProgress(20, '⬆️ Upload du PDF en cours...');
 
-    const { data: urlData } = db.storage.from('bibliotheque').getPublicUrl(fileName);
-    const url = urlData.publicUrl;
+    const { data: pdfData, error: pdfErr } = await sb.storage
+      .from('bibliotheque')
+      .upload(pdfName, file, { cacheControl: '3600', upsert: false });
 
-    // 2. Upload couverture (optionnel)
-    let imageUrl = null;
-    if (coverFile) {
-      bar.style.width = '65%';
-      label.textContent = '65% — Upload couverture...';
-      const coverName = 'cover_' + Date.now() + '_' + coverFile.name.replace(/\s+/g, '_');
-      const { error: coverErr } = await db.storage.from('bibliotheque').upload(coverName, coverFile, { upsert: false });
-      if (!coverErr) {
-        const { data: covUrl } = db.storage.from('bibliotheque').getPublicUrl(coverName);
-        imageUrl = covUrl.publicUrl;
+    if (pdfErr) throw new Error('Upload PDF échoué : ' + pdfErr.message);
+    setProgress(55, '🔗 Récupération du lien...');
+
+    const { data: urlObj } = sb.storage.from('bibliotheque').getPublicUrl(pdfName);
+    const pdfUrl = urlObj.publicUrl;
+    if (!pdfUrl) throw new Error('Impossible de récupérer l\'URL du PDF.');
+
+    // Étape 2 : upload couverture (optionnel)
+    let imgUrl = null;
+    if (cover) {
+      setProgress(65, '🖼️ Upload de la couverture...');
+      const covName = 'cover_' + Date.now() + '_' + cover.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const { error: covErr } = await sb.storage.from('bibliotheque').upload(covName, cover, { upsert: false });
+      if (!covErr) {
+        const { data: covUrl } = sb.storage.from('bibliotheque').getPublicUrl(covName);
+        imgUrl = covUrl.publicUrl;
       }
     }
 
-    bar.style.width = '80%';
-    label.textContent = '80% — Enregistrement...';
+    // Étape 3 : enregistrer dans la base
+    setProgress(80, '💾 Enregistrement en base...');
 
-    // 3. Insérer dans la table
-    const { error: insertErr } = await db.from('bibliotheque').insert({
-      titre: titre,
+    const { error: dbErr } = await sb.from('bibliotheque').insert({
+      titre,
       description: desc || '',
-      url: url,
-      prix: prix,
-      image_url: imageUrl,
+      url: pdfUrl,
+      prix,
+      image_url: imgUrl,
       size: file.size,
       likes: 0
     });
 
-    if (insertErr) throw new Error('Base de données : ' + insertErr.message + ' [' + insertErr.code + ']');
+    if (dbErr) throw new Error('Base de données : ' + dbErr.message + ' (code ' + dbErr.code + ')');
 
-    bar.style.width = '100%';
-    label.textContent = '✅ Terminé !';
-    showToast('✅ PDF ajouté avec succès !', 'success');
+    setProgress(100, '✅ Terminé avec succès !');
+    showMsg('✅ PDF "' + titre + '" ajouté à la bibliothèque !', 'success');
 
-    // Reset form
-    ['pdfTitle','pdfDesc','pdfFile','pdfCover'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    // Réinitialiser
+    ['pdfTitle','pdfDesc','pdfFile','pdfCover'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('pdfPrix').value = '1000';
-    setTimeout(() => { wrap.style.display = 'none'; bar.style.width = '0%'; }, 2000);
-    loadPdfs();
-    loadStats();
+    setTimeout(() => {
+      document.getElementById('uploadWrap').style.display = 'none';
+      document.getElementById('progBar').style.width = '0%';
+    }, 3000);
+
+    loadPdfs(); loadStats();
+
   } catch(e) {
-    showToast('❌ ' + e.message, 'error');
-    wrap.style.display = 'none';
-    bar.style.width = '0%';
+    setProgress(0, '');
+    document.getElementById('uploadWrap').style.display = 'none';
+    showMsg('❌ ' + e.message, 'error');
   }
+}
+
+function setProgress(pct, label) {
+  document.getElementById('uploadWrap').style.display = 'block';
+  document.getElementById('progBar').style.width = pct + '%';
+  document.getElementById('progLabel').textContent = label;
+}
+
+function showMsg(msg, type) {
+  const r = document.getElementById('uploadResult');
+  r.style.display = 'block';
+  r.textContent = msg;
+  r.style.background = type === 'success' ? '#E8F5E9' : '#FFEBEE';
+  r.style.color = type === 'success' ? '#2E7D32' : '#C62828';
 }
 
 // ── LOAD PDFs ──
 async function loadPdfs() {
-  const container = document.getElementById('adminPdfList');
-  const { data: items, error } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false });
-  document.getElementById('pdfCount').textContent = items ? items.length : 0;
-  if (error || !items || !items.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div class="title">Aucun PDF</div><div class="sub">Ajoutez votre premier document ci-dessus</div></div>';
+  const box = document.getElementById('pdfList');
+  const { data, error } = await sb.from('bibliotheque').select('*').order('created_at', { ascending: false });
+  document.getElementById('pdfCount').textContent = data ? data.length : 0;
+  if (error || !data || !data.length) {
+    box.innerHTML = '<div style="text-align:center;padding:30px;color:#888;">📭 Aucun PDF. Ajoutez-en un ci-dessus.</div>';
     return;
   }
-  container.innerHTML = items.map(p => `
-    <div class="pdf-admin-card">
-      <div class="pdf-admin-cover">${p.image_url ? `<img src="${p.image_url}" alt="">` : '📄'}</div>
-      <div class="pdf-admin-info">
-        <div class="pdf-admin-title">${p.titre}</div>
-        <div class="pdf-admin-prix">${(p.prix||1000).toLocaleString()} FCFA</div>
+  box.innerHTML = data.map(p => `
+    <div class="pdf-row">
+      <div class="pdf-thumb">${p.image_url ? `<img src="${p.image_url}" alt="">` : '📄'}</div>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:13px;color:#1B2A4A;margin-bottom:2px;">${p.titre}</div>
+        <div style="font-size:11px;color:#888;margin-bottom:6px;">${(p.prix||1000).toLocaleString()} FCFA · ${Math.round((p.size||0)/1024)} Ko</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <input type="number" value="${p.prix||1000}" min="1000" id="prix-${p.id}" style="width:90px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);">
-          <button onclick="modifierPrix(${p.id})" class="btn btn-sm btn-outline" style="padding:5px 10px;font-size:11px;">✏️</button>
-          <a href="${p.url}" target="_blank" class="btn btn-sm btn-navy" style="padding:5px 10px;font-size:11px;">👁️</a>
-          <button onclick="deletePdf(${p.id},'${p.url}')" class="btn btn-sm btn-red" style="padding:5px 10px;font-size:11px;">🗑️</button>
+          <input type="number" value="${p.prix||1000}" min="1000" id="px-${p.id}" style="width:85px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px;">
+          <button onclick="majPrix(${p.id})" style="padding:4px 10px;border:1px solid #1B2A4A;background:white;color:#1B2A4A;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">✏️</button>
+          <a href="${p.url}" target="_blank" style="padding:4px 10px;background:#1B2A4A;color:white;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;">👁️</a>
+          <button onclick="delPdf(${p.id},'${p.url}')" style="padding:4px 10px;background:#E53935;color:white;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;">🗑️</button>
         </div>
       </div>
     </div>
   `).join('');
 }
 
-async function modifierPrix(id) {
-  const val = parseInt(document.getElementById('prix-' + id).value);
-  if (!val || val < 1000) { showToast('Minimum 1000 FCFA', 'error'); return; }
-  await db.from('bibliotheque').update({ prix: val }).eq('id', id);
-  showToast('Prix mis à jour !', 'success');
+async function majPrix(id) {
+  const v = parseInt(document.getElementById('px-' + id).value);
+  if (!v || v < 1000) { showToast('Minimum 1000 FCFA', 'error'); return; }
+  await sb.from('bibliotheque').update({ prix: v }).eq('id', id);
+  showToast('✅ Prix mis à jour !', 'success');
   loadPdfs();
 }
 
-async function deletePdf(id, url) {
-  if (!confirm('Supprimer ce PDF définitivement ?')) return;
-  await db.from('bibliotheque').delete().eq('id', id);
-  try { const f = url.split('/').pop(); await db.storage.from('bibliotheque').remove([f]); } catch(e){}
+async function delPdf(id, url) {
+  if (!confirm('Supprimer définitivement ce PDF ?')) return;
+  await sb.from('bibliotheque').delete().eq('id', id);
+  try { await sb.storage.from('bibliotheque').remove([url.split('/').pop()]); } catch(e){}
   showToast('PDF supprimé.', 'success');
   loadPdfs(); loadStats();
+}
+
+// ── ACHATS ──
+async function loadAchats() {
+  const box = document.getElementById('achatList');
+  const { data } = await sb.from('achats_pdf').select('*').eq('statut','en_attente').order('created_at', { ascending: false });
+  if (!data || !data.length) {
+    box.innerHTML = '<div style="text-align:center;padding:30px;color:#888;">✅ Aucun achat en attente.</div>';
+    return;
+  }
+  box.innerHTML = data.map(a => `
+    <div class="achat-row">
+      <div style="font-weight:800;color:#1B2A4A;">${a.user_name||a.user_id}</div>
+      <div style="font-size:13px;color:#555;">Veut acheter : <strong>${a.pdf_titre}</strong></div>
+      <div style="font-size:14px;font-weight:800;color:#C9A84C;margin:4px 0;">${(a.montant||0).toLocaleString()} FCFA</div>
+      ${a.capture_url ? `<img src="${a.capture_url}" class="achat-capture" onclick="window.open('${a.capture_url}','_blank')" title="Cliquez pour agrandir">` : '<div style="background:#FFF3E0;padding:8px;border-radius:6px;font-size:12px;color:#E65100;margin:8px 0;">⚠️ Pas de capture de paiement</div>'}
+      <div style="font-size:11px;color:#888;margin-bottom:10px;">📅 ${fmt(a.created_at)}</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="valider(${a.id})" style="flex:1;padding:10px;background:#2E7D32;color:white;border:none;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">✅ Valider</button>
+        <button onclick="refuser(${a.id})" style="flex:1;padding:10px;background:#E53935;color:white;border:none;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">❌ Refuser</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function valider(id) {
+  await sb.from('achats_pdf').update({ statut: 'valide' }).eq('id', id);
+  showToast('✅ Achat validé !', 'success');
+  loadAchats(); loadStats();
+}
+
+async function refuser(id) {
+  await sb.from('achats_pdf').update({ statut: 'refuse' }).eq('id', id);
+  showToast('❌ Refusé.', 'info');
+  loadAchats(); loadStats();
+}
+
+// ── NOTIFICATIONS ──
+function updatePreview() {
+  const emoji = document.getElementById('notifEmoji').value || '📢';
+  const title = document.getElementById('notifTitle').value || 'Titre de la notification';
+  const body = document.getElementById('notifBody').value || 'Message de la notification...';
+  document.getElementById('prevEmoji').textContent = emoji;
+  document.getElementById('prevTitle').textContent = title;
+  document.getElementById('prevBody').textContent = body;
+}
+
+async function envoyerNotif() {
+  const emoji = document.getElementById('notifEmoji').value.trim() || '📢';
+  const title = document.getElementById('notifTitle').value.trim();
+  const body = document.getElementById('notifBody').value.trim();
+  const url = document.getElementById('notifUrl').value;
+
+  if (!title || !body) { showToast('Titre et message obligatoires.', 'error'); return; }
+
+  // Sauvegarder dans la table annonces (sert aussi de notif)
+  await sb.from('annonces').insert({
+    titre: emoji + ' ' + title,
+    contenu: body,
+    image: url
+  });
+
+  // Envoyer notification locale via service worker à tous les onglets ouverts
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'LOCAL_NOTIFICATION',
+      title: emoji + ' ' + title,
+      body: body,
+      url: url
+    });
+  }
+
+  showToast('🔔 Notification envoyée !', 'success');
+
+  // Historique
+  const hist = document.getElementById('notifHistory');
+  const item = document.createElement('div');
+  item.style.cssText = 'background:#F5F5F5;border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;';
+  item.innerHTML = `<strong>${emoji} ${title}</strong><br><span style="color:#555;">${body}</span><br><span style="color:#888;font-size:11px;">Maintenant</span>`;
+  hist.insertBefore(item, hist.firstChild);
+
+  ['notifTitle','notifBody'].forEach(id => document.getElementById(id).value = '');
+  updatePreview();
 }
 
 // ── AFFICHES ──
@@ -784,159 +796,101 @@ async function publierAffiche() {
   const titre = document.getElementById('afficheTitle').value.trim();
   const sub = document.getElementById('afficheSub').value.trim();
   const emoji = document.getElementById('afficheEmoji').value.trim() || '📢';
-  const url = document.getElementById('afficheUrl').value.trim() || 'commander.html';
-  const btnText = document.getElementById('afficheBtnText').value.trim() || 'Voir →';
+  const url = document.getElementById('afficheUrl').value;
+  const btn = document.getElementById('afficheBtnText').value.trim() || 'Voir →';
   if (!titre) { showToast('Titre obligatoire !', 'error'); return; }
-  await db.from('annonces').insert({ titre, contenu: sub, image: emoji + '|' + url + '|' + btnText });
-  showToast('✅ Affiche publiée sur l\'accueil !', 'success');
-  ['afficheTitle','afficheSub','afficheEmoji','afficheUrl','afficheBtnText'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  await sb.from('annonces').insert({ titre, contenu: sub, image: emoji + '|' + url + '|' + btn });
+  showToast('✅ Affiche publiée !', 'success');
+  ['afficheTitle','afficheSub','afficheEmoji','afficheBtnText'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   loadAffiches(); loadStats();
 }
 
 async function loadAffiches() {
-  const container = document.getElementById('affichesList');
-  const { data: items } = await db.from('annonces').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">🖼️</div><div class="title">Aucune affiche</div><div class="sub">Publiez votre première affiche</div></div>';
-    return;
-  }
-  container.innerHTML = items.map(a => {
+  const box = document.getElementById('afficheList');
+  const { data } = await sb.from('annonces').select('*').order('created_at', { ascending: false });
+  if (!data || !data.length) { box.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">🖼️ Aucune affiche.</div>'; return; }
+  box.innerHTML = data.map(a => {
     const parts = (a.image||'').split('|');
     const emoji = parts[0] || '📢';
     return `
-    <div class="card" style="margin-bottom:10px;border-left:4px solid var(--gold);">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-        <span style="font-size:32px;">${emoji}</span>
-        <div>
-          <div style="font-weight:800;color:var(--navy);">${a.titre}</div>
-          <div style="font-size:12px;color:var(--gray2);">${a.contenu||''}</div>
-        </div>
+    <div style="background:white;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.07);border-left:4px solid #C9A84C;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:30px;">${emoji}</span>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:14px;color:#1B2A4A;">${a.titre}</div>
+        <div style="font-size:12px;color:#888;">${a.contenu||''}</div>
+        <div style="font-size:11px;color:#aaa;margin-top:2px;">📅 ${fmt(a.created_at)}</div>
       </div>
-      <div style="font-size:11px;color:var(--gray2);margin-bottom:8px;">📅 ${formatTime(a.created_at)}</div>
-      <button onclick="deleteAffiche(${a.id})" class="btn btn-sm btn-red">🗑️ Supprimer</button>
+      <button onclick="delAffiche(${a.id})" style="background:#E53935;color:white;border:none;padding:7px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">🗑️</button>
     </div>`;
   }).join('');
 }
 
-async function deleteAffiche(id) {
-  if (!confirm('Supprimer cette affiche ?')) return;
-  await db.from('annonces').delete().eq('id', id);
-  showToast('Affiche supprimée.', 'success');
+async function delAffiche(id) {
+  if (!confirm('Supprimer ?')) return;
+  await sb.from('annonces').delete().eq('id', id);
+  showToast('Supprimé.', 'success');
   loadAffiches(); loadStats();
-}
-
-// ── ACHATS ──
-async function loadAchats() {
-  const container = document.getElementById('achatsList');
-  const { data: items } = await db.from('achats_pdf').select('*').eq('statut', 'en_attente').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">✅</div><div class="title">Aucun achat en attente</div></div>';
-    return;
-  }
-  container.innerHTML = items.map(a => `
-    <div class="achat-card">
-      <div style="font-weight:800;color:var(--navy);">${a.user_name}</div>
-      <div style="font-size:13px;color:var(--gray2);">veut acheter : <strong>${a.pdf_titre}</strong></div>
-      <div style="font-size:13px;font-weight:700;color:var(--gold);margin:4px 0;">${(a.montant||0).toLocaleString()} FCFA</div>
-      ${a.capture_url ? `<img src="${a.capture_url}" class="achat-capture" onclick="window.open('${a.capture_url}')" title="Agrandir">` : '<div style="font-size:12px;color:var(--gray2);margin:8px 0;">⚠️ Pas de capture</div>'}
-      <div style="font-size:11px;color:var(--gray2);margin-bottom:10px;">📅 ${formatTime(a.created_at)}</div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="validerAchat(${a.id})" class="btn btn-sm" style="background:#2E7D32;color:white;flex:1;">✅ Valider</button>
-        <button onclick="refuserAchat(${a.id})" class="btn btn-sm btn-red" style="flex:1;">❌ Refuser</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function validerAchat(id) {
-  await db.from('achats_pdf').update({ statut: 'valide' }).eq('id', id);
-  showToast('✅ Achat validé !', 'success');
-  loadAchats(); loadStats();
-}
-
-async function refuserAchat(id) {
-  await db.from('achats_pdf').update({ statut: 'refuse' }).eq('id', id);
-  showToast('❌ Achat refusé.', 'info');
-  loadAchats(); loadStats();
 }
 
 // ── COMMANDES ──
 async function loadCommandes() {
-  const container = document.getElementById('commandesList');
-  const { data: items } = await db.from('commandes').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div class="title">Aucune commande</div></div>';
-    return;
-  }
-  container.innerHTML = items.map(cmd => `
-    <div class="cmd-card ${cmd.status === 'en_attente' ? 'attente' : 'traite'}">
+  const box = document.getElementById('cmdList');
+  const { data } = await sb.from('commandes').select('*').order('created_at', { ascending: false });
+  if (!data || !data.length) { box.innerHTML = '<div style="text-align:center;padding:30px;color:#888;">📭 Aucune commande.</div>'; return; }
+  box.innerHTML = data.map(c => `
+    <div style="background:white;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.07);border-left:4px solid ${c.status==='en_attente'?'#C9A84C':'#2E7D32'};">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
-        <strong style="color:var(--navy);font-size:13px;">${cmd.type_label||'Commande'}</strong>
-        <span class="status-badge ${cmd.status === 'en_attente' ? 'badge-attente' : 'badge-traite'}">${cmd.status === 'en_attente' ? '⏳ En attente' : '✅ Traité'}</span>
+        <strong style="color:#1B2A4A;font-size:13px;">${c.type_label||'Commande'}</strong>
+        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;background:${c.status==='en_attente'?'#FFF3CD':'#D4EDDA'};color:${c.status==='en_attente'?'#856404':'#155724'};">${c.status==='en_attente'?'⏳ En attente':'✅ Traité'}</span>
       </div>
-      <div style="font-size:12px;color:var(--gray2);margin-bottom:4px;">👤 ${cmd.user_name||''} — 📅 ${formatTime(cmd.created_at)}</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">${cmd.description||''}</div>
+      <div style="font-size:12px;color:#888;margin-bottom:4px;">👤 ${c.user_name||''} — 📅 ${fmt(c.created_at)}</div>
+      <div style="font-size:13px;color:#555;margin-bottom:10px;">${c.description||''}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button onclick="toggleStatus('${cmd.id}','${cmd.status}')" class="btn btn-sm btn-outline">🔄 Changer statut</button>
-        <a href="https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour+${encodeURIComponent(cmd.user_name||'')}+commande+${cmd.id}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;">💬 WhatsApp</a>
+        <button onclick="toggleCmd('${c.id}','${c.status}')" style="padding:7px 14px;border:1px solid #1B2A4A;background:white;color:#1B2A4A;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">🔄 Changer statut</button>
+        <a href="https://wa.me/${WHATSAPP}?text=Bonjour+${encodeURIComponent(c.user_name||'')}+commande+${c.id}" target="_blank" style="padding:7px 14px;background:#25D366;color:white;border-radius:6px;font-weight:700;font-size:12px;text-decoration:none;">💬 WhatsApp</a>
       </div>
     </div>
   `).join('');
 }
 
-async function toggleStatus(id, current) {
-  const newStatus = current === 'en_attente' ? 'traite' : 'en_attente';
-  await db.from('commandes').update({ status: newStatus }).eq('id', id);
+async function toggleCmd(id, status) {
+  const ns = status === 'en_attente' ? 'traite' : 'en_attente';
+  await sb.from('commandes').update({ status: ns }).eq('id', id);
   showToast('Statut mis à jour !', 'success');
   loadCommandes();
 }
 
 // ── ANNONCES ──
-async function publishAnnonce() {
-  const titre = document.getElementById('annonceTitle').value.trim();
-  const contenu = document.getElementById('annonceContent').value.trim();
-  const image = document.getElementById('annonceImage').value.trim();
+async function publierAnnonce() {
+  const titre = document.getElementById('annTitle').value.trim();
+  const contenu = document.getElementById('annContent').value.trim();
   if (!titre || !contenu) { showToast('Titre et contenu requis.', 'error'); return; }
-  await db.from('annonces').insert({ titre, contenu, image });
-  ['annonceTitle','annonceContent','annonceImage'].forEach(id => document.getElementById(id).value = '');
+  await sb.from('annonces').insert({ titre, contenu });
+  document.getElementById('annTitle').value = '';
+  document.getElementById('annContent').value = '';
   showToast('📢 Annonce publiée !', 'success');
   loadAnnonces(); loadStats();
 }
 
 async function loadAnnonces() {
-  const container = document.getElementById('annoncesList');
-  const { data: items } = await db.from('annonces').select('*').order('created_at', { ascending: false });
-  if (!items || !items.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">📢</div><div class="title">Aucune annonce</div></div>';
-    return;
-  }
-  container.innerHTML = items.map(a => `
-    <div class="card" style="margin-bottom:10px;border-left:4px solid var(--gold);">
-      ${a.image && !a.image.includes('|') ? `<img src="${a.image}" style="width:100%;border-radius:8px;margin-bottom:10px;max-height:140px;object-fit:cover;">` : ''}
-      <div style="font-weight:800;color:var(--navy);margin-bottom:4px;">${a.titre}</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">${a.contenu||''}</div>
-      <div style="font-size:11px;color:var(--gray2);margin-bottom:8px;">📅 ${formatTime(a.created_at)}</div>
-      <button onclick="deleteAnnonce(${a.id})" class="btn btn-sm btn-red">🗑️ Supprimer</button>
+  const box = document.getElementById('annList');
+  const { data } = await sb.from('annonces').select('*').order('created_at', { ascending: false });
+  if (!data || !data.length) { box.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">📢 Aucune annonce.</div>'; return; }
+  box.innerHTML = data.map(a => `
+    <div style="background:white;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.07);border-left:4px solid #C9A84C;">
+      <div style="font-weight:800;color:#1B2A4A;margin-bottom:4px;">${a.titre}</div>
+      <div style="font-size:13px;color:#555;margin-bottom:6px;">${a.contenu||''}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:8px;">📅 ${fmt(a.created_at)}</div>
+      <button onclick="delAnn(${a.id})" style="padding:6px 12px;background:#E53935;color:white;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">🗑️ Supprimer</button>
     </div>
   `).join('');
 }
 
-async function deleteAnnonce(id) {
+async function delAnn(id) {
   if (!confirm('Supprimer ?')) return;
-  await db.from('annonces').delete().eq('id', id);
+  await sb.from('annonces').delete().eq('id', id);
   showToast('Supprimé.', 'success');
   loadAnnonces(); loadStats();
-}
-
-// ── TOGGLE SITE ──
-function toggleSite(key, btn) {
-  btn.classList.toggle('on');
-  showToast(btn.classList.contains('on') ? '✅ Activé' : '⛔ Désactivé', 'info');
-}
-
-// ── CONTACT ──
-function sauvegarderContact() {
-  showToast('✅ Contact sauvegardé !', 'success');
 }
 </script>
 </body>
