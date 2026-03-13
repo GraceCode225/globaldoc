@@ -302,6 +302,7 @@
   <div class="admin-tabs">
     <button class="atab active" onclick="goTab('pdfs',this)">📚 PDFs</button>
     <button class="atab" onclick="goTab('achats',this)">💳 Achats</button>
+    <button class="atab" onclick="goTab('users',this)">👥 Utilisateurs</button>
     <button class="atab" onclick="goTab('notifs',this)">🔔 Notifications</button>
     <button class="atab" onclick="goTab('affiches',this)">🖼️ Affiches</button>
     <button class="atab" onclick="goTab('commandes',this)">📦 Commandes</button>
@@ -347,6 +348,15 @@
       PDFs en ligne — <span id="pdfCount">0</span>
     </div>
     <div id="pdfList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+  </div>
+
+  <!-- ══ UTILISATEURS ══ -->
+  <div id="apanel-users" class="apanel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font-size:14px;font-weight:800;color:#1B2A4A;">👥 Utilisateurs inscrits (<span id="userCount">0</span>)</div>
+      <button onclick="loadUsers()" style="padding:6px 12px;background:#F0F0F0;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">🔄 Actualiser</button>
+    </div>
+    <div id="userList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
   </div>
 
   <!-- ══ ACHATS ══ -->
@@ -553,7 +563,7 @@ function goTab(name, btn) {
   document.querySelectorAll('.apanel').forEach(p => p.classList.remove('active'));
   document.getElementById('apanel-' + name).classList.add('active');
   if (name === 'pdfs') loadPdfs();
-  else if (name === 'achats') loadAchats();
+  else if (name === 'users') loadUsers();
   else if (name === 'affiches') loadAffiches();
   else if (name === 'commandes') loadCommandes();
   else if (name === 'annonces') loadAnnonces();
@@ -707,6 +717,61 @@ async function delPdf(id, url) {
   try { await sb.storage.from('bibliotheque').remove([url.split('/').pop()]); } catch(e){}
   showToast('PDF supprimé.', 'success');
   loadPdfs(); loadStats();
+}
+
+// ── UTILISATEURS ──
+async function loadUsers() {
+  const box = document.getElementById('userList');
+  // Charger depuis la table users (inscrits via compte.html)
+  const { data: users, error } = await sb.from('users').select('*').order('created_at', { ascending: false });
+  
+  // Aussi charger les achats pour voir qui a acheté
+  const { data: achats } = await sb.from('achats_pdf').select('user_id, user_name, montant, statut').eq('statut', 'valide');
+  
+  const total = users ? users.length : 0;
+  document.getElementById('userCount').textContent = total;
+
+  if (!users || !users.length) {
+    box.innerHTML = `
+      <div style="background:white;border-radius:10px;padding:20px;box-shadow:0 2px 6px rgba(0,0,0,0.07);text-align:center;">
+        <div style="font-size:40px;margin-bottom:8px;">👥</div>
+        <div style="font-weight:800;color:#1B2A4A;margin-bottom:4px;">Aucun utilisateur inscrit</div>
+        <div style="font-size:12px;color:#888;">Les utilisateurs apparaîtront ici quand ils créeront un compte</div>
+      </div>`;
+    return;
+  }
+
+  // Calculer les achats par utilisateur
+  const achatsByUser = {};
+  if (achats) {
+    achats.forEach(a => {
+      if (!achatsByUser[a.user_id]) achatsByUser[a.user_id] = { count: 0, total: 0 };
+      achatsByUser[a.user_id].count++;
+      achatsByUser[a.user_id].total += a.montant || 0;
+    });
+  }
+
+  box.innerHTML = users.map(u => {
+    const ua = achatsByUser[u.id] || { count: 0, total: 0 };
+    return `
+    <div style="background:white;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.07);display:flex;align-items:center;gap:12px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1B2A4A,#C9A84C);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:800;flex-shrink:0;">
+        ${(u.name||'?')[0].toUpperCase()}
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:14px;color:#1B2A4A;">${u.name || '—'}</div>
+        <div style="font-size:12px;color:#888;margin-top:2px;">🆔 ${u.id}</div>
+        <div style="font-size:11px;color:#888;">📅 Inscrit le ${fmt(u.created_at)}</div>
+        ${ua.count > 0 ? `<div style="font-size:12px;color:#C9A84C;font-weight:700;margin-top:2px;">🛒 ${ua.count} achat(s) — ${ua.total.toLocaleString()} FCFA</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:11px;padding:3px 8px;border-radius:20px;font-weight:700;background:${u.online?'#E8F5E9':'#F5F5F5'};color:${u.online?'#2E7D32':'#888'};">
+          ${u.online ? '🟢 En ligne' : '⚫ Hors ligne'}
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:4px;">${u.role || 'user'}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── ACHATS ──
