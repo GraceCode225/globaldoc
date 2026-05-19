@@ -301,12 +301,13 @@
   <!-- ONGLETS -->
   <div class="admin-tabs">
     <button class="atab active" onclick="goTab('pdfs',this)">📚 PDFs</button>
-    <button class="atab" onclick="goTab('achats',this)">💳 Achats</button>
+    <button class="atab" onclick="goTab('achats',this)">💳 Achats <span id="achatsBadge" style="display:none;background:#E53935;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;align-items:center;justify-content:center;margin-left:4px;">0</span></button>
     <button class="atab" onclick="goTab('users',this)">👥 Utilisateurs</button>
     <button class="atab" onclick="goTab('notifs',this)">🔔 Notifications</button>
     <button class="atab" onclick="goTab('affiches',this)">🖼️ Affiches</button>
     <button class="atab" onclick="goTab('commandes',this)">📦 Commandes</button>
     <button class="atab" onclick="goTab('annonces',this)">📢 Annonces</button>
+    <button class="atab" onclick="goTab('avis',this)">⭐ Avis <span id="avisBadge" style="display:none;background:#C9A84C;color:#1B2A4A;border-radius:50%;width:18px;height:18px;font-size:10px;align-items:center;justify-content:center;margin-left:4px;font-weight:900;">0</span></button>
     <button class="atab" onclick="goTab('site',this)">🌐 Site</button>
   </div>
 
@@ -413,25 +414,32 @@
     </div>
   </div>
 
-  <!-- ══ AFFICHES ══ -->
+  <!-- ══ AFFICHES / MÉDIAS ══ -->
   <div id="apanel-affiches" class="apanel">
+
+    <!-- Upload photo -->
     <div class="acard">
-      <h3>🖼️ Publier une affiche sur l'accueil</h3>
-      <p style="font-size:12px;color:#888;margin-bottom:16px;">Les affiches apparaissent dans le slider de la page d'accueil.</p>
+      <h3>🖼️ Publier une photo / affiche</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:14px;">La photo s'affiche dans le slider de l'accueil avec un titre et un bouton.</p>
+
+      <div class="form-group">
+        <label class="form-label">Photo * (JPG, PNG, WEBP)</label>
+        <input type="file" id="afficheFile" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif"
+          style="padding:8px;" onchange="previewAfficheImg(this)">
+        <div id="affichePreview" style="display:none;margin-top:8px;">
+          <img id="affichePreviewImg" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:2px solid #E0E0E0;">
+        </div>
+      </div>
       <div class="form-group">
         <label class="form-label">Titre *</label>
-        <input type="text" id="afficheTitle" class="form-control" placeholder="Ex: Promotion rentrée !">
+        <input type="text" id="afficheTitle" class="form-control" placeholder="Ex: Promotion rentrée scolaire !">
       </div>
       <div class="form-group">
-        <label class="form-label">Message</label>
-        <input type="text" id="afficheSub" class="form-control" placeholder="Ex: -20% sur tous les CV">
+        <label class="form-label">Sous-titre</label>
+        <input type="text" id="afficheSub" class="form-control" placeholder="Ex: -20% sur tous les CV cette semaine">
       </div>
       <div class="form-group">
-        <label class="form-label">Emoji</label>
-        <input type="text" id="afficheEmoji" class="form-control" placeholder="🎉" maxlength="4" style="font-size:22px;width:80px;">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Page à ouvrir</label>
+        <label class="form-label">Lien du bouton</label>
         <select id="afficheUrl" class="form-control">
           <option value="commander.html">🛒 Commander</option>
           <option value="bibliotheque.html">📚 Bibliothèque</option>
@@ -443,10 +451,35 @@
         <label class="form-label">Texte du bouton</label>
         <input type="text" id="afficheBtnText" class="form-control" placeholder="Commander →">
       </div>
-      <button class="btn btn-primary btn-block" onclick="publierAffiche()">🖼️ Publier l'affiche</button>
+
+      <!-- Barre de progression upload -->
+      <div id="afficheUploadWrap" style="display:none;margin-bottom:12px;">
+        <div class="prog-wrap"><div class="prog-fill" id="afficheProgBar"></div></div>
+        <div class="prog-label" id="afficheProgLabel"></div>
+      </div>
+      <div id="afficheUploadResult" style="display:none;padding:10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:10px;"></div>
+
+      <button class="btn btn-primary btn-block" onclick="publierAffiche()">📤 Publier la photo</button>
     </div>
-    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin-bottom:10px;">Affiches actives</div>
-    <div id="afficheList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
+
+    <!-- Ajouter une vidéo YouTube -->
+    <div class="acard">
+      <h3>🎬 Ajouter une vidéo</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:14px;">Collez un lien YouTube ou Facebook. La vidéo s'affiche sur l'accueil.</p>
+      <div class="form-group">
+        <label class="form-label">Titre de la vidéo *</label>
+        <input type="text" id="videoTitre" class="form-control" placeholder="Ex: Comment commander sur GlobalDoc ?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lien YouTube *</label>
+        <input type="url" id="videoUrl" class="form-control" placeholder="https://youtube.com/watch?v=...">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="publierVideo()">🎬 Publier la vidéo</button>
+    </div>
+
+    <!-- Liste des médias publiés -->
+    <div style="font-size:14px;font-weight:800;color:#1B2A4A;margin:4px 0 10px;">Médias publiés</div>
+    <div id="afficheList"><div style="text-align:center;padding:20px;color:#888;">Chargement...</div></div>
   </div>
 
   <!-- ══ COMMANDES ══ -->
@@ -473,34 +506,74 @@
     <div id="annList"><div class="loader"><div class="spinner"></div>Chargement...</div></div>
   </div>
 
+  <!-- ══ AVIS CLIENTS ══ -->
+  <div id="apanel-avis" class="apanel">
+    <div class="acard">
+      <h3>⭐ Avis clients <span id="avisCount" style="font-size:12px;color:#888;font-weight:700;"></span></h3>
+
+      <!-- Résumé stats -->
+      <div id="avisSummaryAdmin" style="background:#F8F9FA;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+        <div style="text-align:center;min-width:60px;">
+          <div id="adminNoteMoy" style="font-size:32px;font-weight:900;color:var(--navy,#1B2A4A);line-height:1;">—</div>
+          <div id="adminStars" style="font-size:13px;margin:2px 0;"></div>
+          <div id="adminNbAvis" style="font-size:11px;color:#888;font-weight:700;">0 avis</div>
+        </div>
+        <div id="adminBarres" style="flex:1;display:flex;flex-direction:column;gap:5px;"></div>
+      </div>
+
+      <!-- Liste des avis -->
+      <div id="avisList" style="margin-top:4px;">
+        <div style="text-align:center;padding:30px;color:#888;">Chargement...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ SITE ══ -->
   <div id="apanel-site" class="apanel">
     <div class="acard">
       <h3>🌐 Contrôle du site</h3>
       <div class="toggle-row">
         <div><div style="font-weight:700;font-size:14px;">📚 Bibliothèque PDF</div><div style="font-size:11px;color:#888;">Visible pour les visiteurs</div></div>
-        <button class="tgl on" onclick="this.classList.toggle('on')"></button>
+        <button class="tgl on" id="tgl-bibliotheque" onclick="saveToggle('bibliotheque', this)"></button>
       </div>
       <div class="toggle-row">
         <div><div style="font-weight:700;font-size:14px;">⚡ Flash Sale</div><div style="font-size:11px;color:#888;">Barre de compte à rebours</div></div>
-        <button class="tgl on" onclick="this.classList.toggle('on')"></button>
+        <button class="tgl on" id="tgl-flashsale" onclick="saveToggle('flashsale', this)"></button>
       </div>
       <div class="toggle-row">
         <div><div style="font-weight:700;font-size:14px;">💬 Communauté</div><div style="font-size:11px;color:#888;">Accès à la page communauté</div></div>
-        <button class="tgl on" onclick="this.classList.toggle('on')"></button>
+        <button class="tgl on" id="tgl-communaute" onclick="saveToggle('communaute', this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div><div style="font-weight:700;font-size:14px;">🛒 Commandes en ligne</div><div style="font-size:11px;color:#888;">Formulaire de commande actif</div></div>
+        <button class="tgl on" id="tgl-commandes" onclick="saveToggle('commandes', this)"></button>
       </div>
     </div>
+
+    <div class="acard">
+      <h3>⏱️ Promotion Flash Sale</h3>
+      <div class="form-group">
+        <label class="form-label">Texte de la promo</label>
+        <input type="text" class="form-control" id="promoText" placeholder="Ex: -20% sur les CVs ce week-end !">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date de fin de la promo</label>
+        <input type="datetime-local" class="form-control" id="promoDate">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="savePromo()">💾 Enregistrer la promo</button>
+    </div>
+
     <div class="acard">
       <h3>📞 Contact</h3>
       <div class="form-group">
         <label class="form-label">Numéro WhatsApp</label>
-        <input type="text" class="form-control" value="2250142116172">
+        <input type="text" class="form-control" id="cfgWhatsapp" value="2250142116172">
       </div>
       <div class="form-group">
-        <label class="form-label">Numéro Wave</label>
-        <input type="text" class="form-control" value="0501233818">
+        <label class="form-label">Numéro Wave/Orange Money</label>
+        <input type="text" class="form-control" id="cfgWave" value="0501233818">
       </div>
-      <button class="btn btn-navy btn-block" onclick="showToast('✅ Sauvegardé !','success')">💾 Sauvegarder</button>
+      <button class="btn btn-navy btn-block" onclick="saveSiteConfig()">💾 Sauvegarder</button>
     </div>
     <a href="index.html" class="btn btn-outline btn-block" style="margin-top:4px;">🏠 Voir le site</a>
   </div>
@@ -544,6 +617,18 @@ function startDashboard(email) {
   document.getElementById('adminEmail').textContent = email;
   loadStats();
   loadPdfs();
+  // Badge achats en attente, mis à jour toutes les 60s
+  checkAchatsEnAttente();
+  setInterval(checkAchatsEnAttente, 60000);
+}
+
+async function checkAchatsEnAttente() {
+  const { count } = await sb.from('achats_pdf').select('*', { count:'exact', head:true }).eq('statut','en_attente');
+  const badge = document.getElementById('achatsBadge');
+  if (badge) {
+    badge.textContent = count || 0;
+    badge.style.display = (count > 0) ? 'inline-flex' : 'none';
+  }
 }
 
 async function doLogout() {
@@ -563,24 +648,35 @@ function goTab(name, btn) {
   document.querySelectorAll('.apanel').forEach(p => p.classList.remove('active'));
   document.getElementById('apanel-' + name).classList.add('active');
   if (name === 'pdfs') loadPdfs();
+  else if (name === 'achats') loadAchats();          // ✅ FIX: était manquant
   else if (name === 'users') loadUsers();
+  else if (name === 'notifs') { updatePreview(); loadAnnonces(); } // ✅ FIX: charger l'historique
   else if (name === 'affiches') loadAffiches();
   else if (name === 'commandes') loadCommandes();
   else if (name === 'annonces') loadAnnonces();
+  else if (name === 'avis') loadAvisAdmin();
+  else if (name === 'site') loadSiteConfig();        // ✅ FIX: charger la config site
 }
 
 // ── STATS ──
 async function loadStats() {
-  const [p, a, c, an] = await Promise.all([
+  const [p, a, c, an, av] = await Promise.all([
     sb.from('bibliotheque').select('*', { count:'exact', head:true }),
     sb.from('achats_pdf').select('*', { count:'exact', head:true }).eq('statut','en_attente'),
     sb.from('commandes').select('*', { count:'exact', head:true }),
-    sb.from('annonces').select('*', { count:'exact', head:true })
+    sb.from('annonces').select('*', { count:'exact', head:true }),
+    sb.from('avis_clients').select('*', { count:'exact', head:true })
   ]);
   document.getElementById('sPdfs').textContent = p.count || 0;
   document.getElementById('sAchats').textContent = a.count || 0;
   document.getElementById('sCmds').textContent = c.count || 0;
   document.getElementById('sAnn').textContent = an.count || 0;
+  // Badge avis
+  const avisBadge = document.getElementById('avisBadge');
+  if (avisBadge && av.count > 0) {
+    avisBadge.textContent = av.count;
+    avisBadge.style.display = 'inline-flex';
+  }
 }
 
 // ── UPLOAD PDF ──
@@ -872,44 +968,164 @@ async function envoyerNotif() {
 }
 
 // ── AFFICHES ──
-async function publierAffiche() {
-  const titre = document.getElementById('afficheTitle').value.trim();
-  const sub = document.getElementById('afficheSub').value.trim();
-  const emoji = document.getElementById('afficheEmoji').value.trim() || '📢';
-  const url = document.getElementById('afficheUrl').value;
-  const btn = document.getElementById('afficheBtnText').value.trim() || 'Voir →';
-  if (!titre) { showToast('Titre obligatoire !', 'error'); return; }
-  await sb.from('annonces').insert({ titre, contenu: sub, image: emoji + '|' + url + '|' + btn });
-  showToast('✅ Affiche publiée !', 'success');
-  ['afficheTitle','afficheSub','afficheEmoji','afficheBtnText'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-  loadAffiches(); loadStats();
+// ── AFFICHES : UPLOAD PHOTO RÉELLE ──
+function previewAfficheImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('affichePreviewImg').src = e.target.result;
+    document.getElementById('affichePreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
 }
 
+function setAfficheProgress(pct, label) {
+  document.getElementById('afficheUploadWrap').style.display = 'block';
+  document.getElementById('afficheProgBar').style.width = pct + '%';
+  document.getElementById('afficheProgLabel').textContent = label;
+}
+
+function showAfficheMsg(msg, type) {
+  const r = document.getElementById('afficheUploadResult');
+  r.style.display = 'block';
+  r.textContent = msg;
+  r.style.background = type === 'success' ? '#E8F5E9' : '#FFEBEE';
+  r.style.color = type === 'success' ? '#2E7D32' : '#C62828';
+}
+
+async function publierAffiche() {
+  const file   = document.getElementById('afficheFile').files[0];
+  const titre  = document.getElementById('afficheTitle').value.trim();
+  const sub    = document.getElementById('afficheSub').value.trim();
+  const url    = document.getElementById('afficheUrl').value;
+  const btn    = document.getElementById('afficheBtnText').value.trim() || 'Voir →';
+
+  if (!file)  { showToast('Choisissez une photo.', 'error'); return; }
+  if (!titre) { showToast('Le titre est obligatoire.', 'error'); return; }
+
+  setAfficheProgress(10, '🖼️ Préparation de la photo...');
+
+  try {
+    const nom = 'affiche_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    setAfficheProgress(30, '⬆️ Upload en cours...');
+
+    const { error: upErr } = await sb.storage.from('medias').upload(nom, file, { upsert: false });
+    if (upErr) throw new Error('Upload échoué : ' + upErr.message);
+
+    setAfficheProgress(70, '🔗 Récupération du lien...');
+    const { data: urlObj } = sb.storage.from('medias').getPublicUrl(nom);
+    const imageUrl = urlObj.publicUrl;
+
+    setAfficheProgress(85, '💾 Enregistrement...');
+    const { error: dbErr } = await sb.from('medias').insert({
+      type: 'photo',
+      titre, sous_titre: sub,
+      image_url: imageUrl,
+      lien: url, bouton: btn
+    });
+    if (dbErr) throw new Error('Base : ' + dbErr.message);
+
+    setAfficheProgress(100, '✅ Photo publiée !');
+    showAfficheMsg('✅ "' + titre + '" est maintenant visible sur l\'accueil !', 'success');
+
+    ['afficheTitle','afficheSub','afficheBtnText'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('afficheFile').value = '';
+    document.getElementById('affichePreview').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('afficheUploadWrap').style.display = 'none';
+      document.getElementById('afficheUploadResult').style.display = 'none';
+    }, 3000);
+
+    loadAffiches();
+
+  } catch(e) {
+    setAfficheProgress(0, '');
+    document.getElementById('afficheUploadWrap').style.display = 'none';
+    showAfficheMsg('❌ ' + e.message, 'error');
+  }
+}
+
+// ── VIDÉOS YOUTUBE ──
+async function publierVideo() {
+  const titre = document.getElementById('videoTitre').value.trim();
+  let url     = document.getElementById('videoUrl').value.trim();
+
+  if (!titre) { showToast('Titre obligatoire.', 'error'); return; }
+  if (!url)   { showToast('Lien vidéo obligatoire.', 'error'); return; }
+
+  // Convertir en URL embed YouTube
+  url = url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/');
+
+  const { error } = await sb.from('medias').insert({
+    type: 'video', titre, video_url: url
+  });
+  if (error) { showToast('❌ Erreur : ' + error.message, 'error'); return; }
+
+  showToast('🎬 Vidéo publiée sur l\'accueil !', 'success');
+  document.getElementById('videoTitre').value = '';
+  document.getElementById('videoUrl').value = '';
+  loadAffiches();
+}
+
+// ── LISTE MÉDIAS (photos + vidéos) ──
 async function loadAffiches() {
   const box = document.getElementById('afficheList');
-  const { data } = await sb.from('annonces').select('*').order('created_at', { ascending: false });
-  if (!data || !data.length) { box.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">🖼️ Aucune affiche.</div>'; return; }
-  box.innerHTML = data.map(a => {
-    const parts = (a.image||'').split('|');
-    const emoji = parts[0] || '📢';
-    return `
-    <div style="background:white;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.07);border-left:4px solid #C9A84C;display:flex;align-items:center;gap:12px;">
-      <span style="font-size:30px;">${emoji}</span>
-      <div style="flex:1;">
-        <div style="font-weight:800;font-size:14px;color:#1B2A4A;">${a.titre}</div>
-        <div style="font-size:12px;color:#888;">${a.contenu||''}</div>
-        <div style="font-size:11px;color:#aaa;margin-top:2px;">📅 ${fmt(a.created_at)}</div>
-      </div>
-      <button onclick="delAffiche(${a.id})" style="background:#E53935;color:white;border:none;padding:7px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">🗑️</button>
-    </div>`;
+  const { data } = await sb.from('medias').select('*').order('created_at', { ascending: false });
+
+  if (!data || !data.length) {
+    box.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">Aucun média publié.</div>';
+    return;
+  }
+
+  box.innerHTML = data.map(m => {
+    if (m.type === 'photo') {
+      return `
+      <div style="background:white;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <img src="${m.image_url}" style="width:100%;max-height:180px;object-fit:cover;display:block;">
+        <div style="padding:12px;">
+          <div style="font-weight:800;font-size:14px;color:#1B2A4A;">${m.titre}</div>
+          ${m.sous_titre ? `<div style="font-size:12px;color:#888;margin-top:2px;">${m.sous_titre}</div>` : ''}
+          <div style="font-size:11px;color:#aaa;margin:4px 0 10px;">📅 ${fmt(m.created_at)} · 🔗 ${m.lien||''}</div>
+          <button onclick="delMedia(${m.id}, '${m.image_url}')"
+            style="padding:7px 14px;background:#E53935;color:white;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">
+            🗑️ Supprimer
+          </button>
+        </div>
+      </div>`;
+    } else {
+      // vidéo
+      const embedUrl = m.video_url || '';
+      return `
+      <div style="background:white;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <div style="position:relative;padding-bottom:56.25%;background:#000;">
+          <iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div style="padding:12px;">
+          <div style="font-weight:800;font-size:14px;color:#1B2A4A;">🎬 ${m.titre}</div>
+          <div style="font-size:11px;color:#aaa;margin:4px 0 10px;">📅 ${fmt(m.created_at)}</div>
+          <button onclick="delMedia(${m.id}, null)"
+            style="padding:7px 14px;background:#E53935;color:white;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">
+            🗑️ Supprimer
+          </button>
+        </div>
+      </div>`;
+    }
   }).join('');
 }
 
-async function delAffiche(id) {
-  if (!confirm('Supprimer ?')) return;
-  await sb.from('annonces').delete().eq('id', id);
-  showToast('Supprimé.', 'success');
-  loadAffiches(); loadStats();
+async function delMedia(id, imageUrl) {
+  if (!confirm('Supprimer ce média définitivement ?')) return;
+  await sb.from('medias').delete().eq('id', id);
+  // Supprimer aussi le fichier du storage si c'est une photo
+  if (imageUrl) {
+    try {
+      const nomFichier = imageUrl.split('/').pop();
+      await sb.storage.from('medias').remove([nomFichier]);
+    } catch(e) {}
+  }
+  showToast('Média supprimé.', 'success');
+  loadAffiches();
 }
 
 // ── COMMANDES ──
@@ -971,6 +1187,142 @@ async function delAnn(id) {
   await sb.from('annonces').delete().eq('id', id);
   showToast('Supprimé.', 'success');
   loadAnnonces(); loadStats();
+}
+
+// ── AVIS CLIENTS (admin) ──
+async function loadAvisAdmin() {
+  const box = document.getElementById('avisList');
+  box.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">Chargement...</div>';
+
+  const { data, error } = await sb.from('avis_clients')
+    .select('*').order('created_at', { ascending: false });
+
+  const total = data ? data.length : 0;
+  document.getElementById('avisCount').textContent = '— ' + total + ' avis';
+
+  if (error || !total) {
+    box.innerHTML = '<div style="text-align:center;padding:30px;color:#888;">⭐ Aucun avis client pour le moment.</div>';
+    document.getElementById('adminNoteMoy').textContent = '—';
+    document.getElementById('adminStars').textContent = '';
+    document.getElementById('adminNbAvis').textContent = '0 avis';
+    document.getElementById('adminBarres').innerHTML = '';
+    return;
+  }
+
+  // Stats
+  const moy = data.reduce((s, a) => s + a.etoiles, 0) / total;
+  const dist = [5,4,3,2,1].map(n => ({ n, count: data.filter(a => a.etoiles===n).length }));
+  document.getElementById('adminNoteMoy').textContent = moy.toFixed(1);
+  document.getElementById('adminStars').textContent = '⭐'.repeat(Math.round(moy));
+  document.getElementById('adminNbAvis').textContent = total + ' avis';
+  document.getElementById('adminBarres').innerHTML = dist.map(d => `
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+      <span style="color:#888;font-weight:700;width:10px;">${d.n}⭐</span>
+      <div style="flex:1;background:#E0E0E0;border-radius:4px;height:8px;overflow:hidden;">
+        <div style="height:100%;background:#C9A84C;border-radius:4px;width:${total ? Math.round(d.count/total*100) : 0}%;"></div>
+      </div>
+      <span style="color:#888;font-weight:700;width:24px;">${d.count}</span>
+    </div>
+  `).join('');
+
+  // Couleurs avatars
+  const couleurs = ['#1B2A4A','#C9A84C','#2E7D32','#6A1B9A','#C62828','#01579B'];
+
+  box.innerHTML = data.map((a, i) => {
+    const initiales = (a.nom||'AN').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const couleur = couleurs[i % couleurs.length];
+    const dt = a.created_at ? new Date(a.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    const etoiles = '⭐'.repeat(a.etoiles) + '☆'.repeat(5-a.etoiles);
+    return `
+    <div style="background:#F8F9FA;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${couleur};">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${couleur};display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:14px;flex-shrink:0;">${initiales}</div>
+        <div style="flex:1;">
+          <div style="font-weight:800;font-size:13px;color:#1B2A4A;">${a.nom || '—'}</div>
+          <div style="font-size:11px;color:#888;">${a.service || 'Service GlobalDoc'}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;">${etoiles}</div>
+          <div style="font-size:10px;color:#aaa;">${dt}</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#444;line-height:1.5;margin-bottom:10px;font-style:italic;">"${a.texte}"</div>
+      <button onclick="delAvis(${a.id})"
+        style="padding:6px 14px;background:#E53935;color:white;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">
+        🗑️ Supprimer
+      </button>
+    </div>
+  `}).join('');
+}
+
+async function delAvis(id) {
+  if (!confirm('Supprimer définitivement cet avis ?')) return;
+  await sb.from('avis_clients').delete().eq('id', id);
+  showToast('Avis supprimé.', 'success');
+  loadAvisAdmin();
+  loadStats();
+}
+
+// ── CONFIG SITE (toggles + promo + contact) ──
+async function loadSiteConfig() {
+  try {
+    const { data } = await sb.from('config').select('*');
+    if (!data) return;
+    data.forEach(row => {
+      const tgl = document.getElementById('tgl-' + row.cle);
+      if (tgl) {
+        if (row.valeur === 'true') tgl.classList.add('on');
+        else tgl.classList.remove('on');
+      }
+      if (row.cle === 'promo_text') { const el = document.getElementById('promoText'); if(el) el.value = row.valeur || ''; }
+      if (row.cle === 'promo_date') { const el = document.getElementById('promoDate'); if(el) el.value = row.valeur || ''; }
+      if (row.cle === 'whatsapp') { const el = document.getElementById('cfgWhatsapp'); if(el) el.value = row.valeur || '2250142116172'; }
+      if (row.cle === 'wave') { const el = document.getElementById('cfgWave'); if(el) el.value = row.valeur || '0501233818'; }
+    });
+  } catch(e) {
+    // Table config peut ne pas exister encore — pas d'erreur bloquante
+    console.warn('Config table non disponible:', e.message);
+  }
+}
+
+async function saveToggle(key, btn) {
+  btn.classList.toggle('on');
+  const valeur = btn.classList.contains('on') ? 'true' : 'false';
+  try {
+    await sb.from('config').upsert({ cle: key, valeur }, { onConflict: 'cle' });
+    showToast(btn.classList.contains('on') ? '✅ Activé' : '🔴 Désactivé', 'success');
+  } catch(e) {
+    showToast('⚠️ Table "config" manquante dans Supabase', 'error');
+  }
+}
+
+async function saveSiteConfig() {
+  const whatsapp = document.getElementById('cfgWhatsapp').value.trim();
+  const wave = document.getElementById('cfgWave').value.trim();
+  try {
+    await Promise.all([
+      sb.from('config').upsert({ cle: 'whatsapp', valeur: whatsapp }, { onConflict: 'cle' }),
+      sb.from('config').upsert({ cle: 'wave', valeur: wave }, { onConflict: 'cle' })
+    ]);
+    showToast('✅ Contacts sauvegardés !', 'success');
+  } catch(e) {
+    showToast('⚠️ Erreur — créez la table config', 'error');
+  }
+}
+
+async function savePromo() {
+  const texte = document.getElementById('promoText').value.trim();
+  const date = document.getElementById('promoDate').value;
+  if (!texte) { showToast('Entrez un texte de promo.', 'error'); return; }
+  try {
+    await Promise.all([
+      sb.from('config').upsert({ cle: 'promo_text', valeur: texte }, { onConflict: 'cle' }),
+      sb.from('config').upsert({ cle: 'promo_date', valeur: date }, { onConflict: 'cle' })
+    ]);
+    showToast('✅ Promo Flash Sale enregistrée !', 'success');
+  } catch(e) {
+    showToast('⚠️ Erreur — vérifiez la table config dans Supabase', 'error');
+  }
 }
 </script>
 </body>
