@@ -1,408 +1,111 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlobalDoc DGD.CI — Documents Professionnels en Côte d'Ivoire</title>
-  <meta name="description" content="GlobalDoc DGD.CI : CV, lettres de motivation, mémoires, rapports. Service rapide à Abidjan.">
-  <meta name="theme-color" content="#1B2A4A">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="assets/icon-192.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "ee9d25cd-63b4-4cb7-bd77-05bba2ba9c32",
-        notifyButton: { enable: false },
-        promptOptions: {
-          slidedown: {
-            prompts: [{
-              type: "push",
-              autoPrompt: true,
-              text: {
-                actionMessage: "Recevez les nouveaux documents et promotions GlobalDoc !",
-                acceptButton: "Oui, autoriser",
-                cancelButton: "Plus tard"
-              },
-              delay: { pageViews: 1, timeDelay: 4 }
-            }]
-          }
-        }
-      });
-    });
-  </script>
-</head>
-<body>
+-- ═══════════════════════════════════════════════════════
+-- GLOBALDOC — Table AVIS_CLIENTS + Table CONFIG
+-- Exécutez dans Supabase > SQL Editor > Run
+-- ═══════════════════════════════════════════════════════
 
-<!-- TOAST -->
-<div id="toast" class="toast"></div>
+-- ── 1. TABLE AVIS CLIENTS ──
+-- Permet aux visiteurs de laisser un commentaire et une note
 
-<!-- TOP HEADER -->
-<header class="top-header">
-  <a href="index.html" class="logo-zone" style="text-decoration:none;">
-    <span class="dgd">DGD<span style="color:white;">.CI</span></span>
-    <span class="sub">GlobalDoc</span>
-  </a>
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Recherche sur GlobalDoc" onkeydown="if(event.key==='Enter') doSearch()">
-    <button onclick="doSearch()">🔍</button>
-  </div>
-  <div class="header-icons">
-    <a href="compte.html" class="header-icon">
-      <span>👤</span>
-      <span>Compte</span>
-    </a>
-  </div>
-</header>
+CREATE TABLE IF NOT EXISTS avis_clients (
+  id          BIGSERIAL PRIMARY KEY,
+  nom         TEXT NOT NULL,
+  service     TEXT DEFAULT 'Service GlobalDoc',
+  texte       TEXT NOT NULL,
+  etoiles     INTEGER DEFAULT 5 CHECK (etoiles BETWEEN 1 AND 5),
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
 
-<!-- BANNIÈRE -->
-<div class="promo-banner">
-  📞 Commandez par WhatsApp : <strong>+225 0142116172</strong>
-</div>
+-- Sécurité RLS
+ALTER TABLE avis_clients ENABLE ROW LEVEL SECURITY;
 
-<!-- SLIDER -->
-<div class="hero-slider">
-  <div class="hero-slide active">
-    <div class="hero-slide-text">
-      <span class="hero-slide-badge">⚡ OFFRE SPÉCIALE</span>
-      <div class="hero-slide-title">CV Pro dès<br><strong>2 000 FCFA</strong></div>
-      <div class="hero-slide-sub">Livraison en 24h · Format Word + PDF</div>
-      <a href="commander.html" class="hero-slide-btn">Commander →</a>
-    </div>
-    <div class="hero-slide-emoji">📄</div>
-  </div>
-  <div class="hero-slide">
-    <div class="hero-slide-text">
-      <span class="hero-slide-badge">🎓 UNIVERSITAIRE</span>
-      <div class="hero-slide-title">Mémoires &<br><strong>Rapports</strong></div>
-      <div class="hero-slide-sub">Rédaction complète · Mise en page pro</div>
-      <a href="services.html" class="hero-slide-btn">Voir les services →</a>
-    </div>
-    <div class="hero-slide-emoji">📚</div>
-  </div>
-  <div class="hero-slide">
-    <div class="hero-slide-text">
-      <span class="hero-slide-badge">📱 NOUVEAU</span>
-      <div class="hero-slide-title">Bibliothèque<br><strong>PDF</strong></div>
-      <div class="hero-slide-sub">Documents prêts à télécharger · Paiement Wave</div>
-      <a href="bibliotheque.html" class="hero-slide-btn">Parcourir →</a>
-    </div>
-    <div class="hero-slide-emoji">🗂️</div>
-  </div>
-  <div class="slider-dots">
-    <div class="slider-dot active"></div>
-    <div class="slider-dot"></div>
-    <div class="slider-dot"></div>
-  </div>
-</div>
+-- Tout le monde peut lire les avis
+DROP POLICY IF EXISTS "avis_read" ON avis_clients;
+CREATE POLICY "avis_read" ON avis_clients FOR SELECT USING (true);
 
-<!-- FLASH SALE -->
-<div class="flash-bar">
-  <div class="flash-bar-left">
-    <span class="icon">⚡</span>
-    <span>Commandes Flash | Chaque jour</span>
-  </div>
-  <div class="flash-timer">
-    <span>TEMPS :</span>
-    <span class="timer-block" id="timerH">00</span>:
-    <span class="timer-block" id="timerM">00</span>:
-    <span class="timer-block" id="timerS">00</span>
-  </div>
-</div>
+-- Tout le monde peut laisser un avis (INSERT)
+DROP POLICY IF EXISTS "avis_insert" ON avis_clients;
+CREATE POLICY "avis_insert" ON avis_clients FOR INSERT WITH CHECK (true);
 
-<!-- CATÉGORIES RAPIDES -->
-<div class="quick-cats">
-  <a href="services.html#cv" class="quick-cat">
-    <span class="cat-icon">📄</span>
-    <span class="cat-name">CV & Lettres</span>
-  </a>
-  <a href="services.html#memoire" class="quick-cat">
-    <span class="cat-icon">🎓</span>
-    <span class="cat-name">Mémoires</span>
-  </a>
-  <a href="bibliotheque.html" class="quick-cat">
-    <span class="cat-icon">📚</span>
-    <span class="cat-name">Bibliothèque</span>
-  </a>
-  <a href="services.html#expose" class="quick-cat">
-    <span class="cat-icon">📋</span>
-    <span class="cat-name">Exposés</span>
-  </a>
-  <a href="services.html#rapport" class="quick-cat">
-    <span class="cat-icon">📊</span>
-    <span class="cat-name">Rapports</span>
-  </a>
-  <a href="services.html#admin" class="quick-cat">
-    <span class="cat-icon">🏛️</span>
-    <span class="cat-name">Admin</span>
-  </a>
-  <a href="services.html#traduction" class="quick-cat">
-    <span class="cat-icon">🌍</span>
-    <span class="cat-name">Traduction</span>
-  </a>
-  <a href="tarifs.html" class="quick-cat">
-    <span class="cat-icon">💰</span>
-    <span class="cat-name">Tarifs</span>
-  </a>
-</div>
-
-<!-- SERVICES POPULAIRES -->
-<div class="section">
-  <div class="section-header">
-    <span class="section-title">Services populaires</span>
-    <a href="services.html" class="section-link">Voir Tout</a>
-  </div>
-  <div class="products-scroll" id="servicesScroll">
-    <a href="commander.html?type=cv" class="product-card">
-      <div class="product-card-img">📄<span class="discount-badge">-20%</span></div>
-      <div class="product-card-body">
-        <div class="product-card-title">CV Professionnel Word + PDF</div>
-        <div class="product-card-prix">2 000 FCFA</div>
-        <div class="product-card-old">2 500 FCFA</div>
-        <div class="stock-bar-wrap"><div class="stock-bar" style="width:70%"></div></div>
-        <button class="product-card-btn">Commander</button>
-      </div>
-    </a>
-    <a href="commander.html?type=lettre" class="product-card">
-      <div class="product-card-img">✉️</div>
-      <div class="product-card-body">
-        <div class="product-card-title">Lettre de Motivation</div>
-        <div class="product-card-prix">1 500 FCFA</div>
-        <div class="stock-bar-wrap"><div class="stock-bar" style="width:55%"></div></div>
-        <button class="product-card-btn">Commander</button>
-      </div>
-    </a>
-    <a href="commander.html?type=expose" class="product-card">
-      <div class="product-card-img">📋<span class="discount-badge">-15%</span></div>
-      <div class="product-card-body">
-        <div class="product-card-title">Exposé Académique Complet</div>
-        <div class="product-card-prix">5 000 FCFA</div>
-        <div class="product-card-old">5 900 FCFA</div>
-        <div class="stock-bar-wrap"><div class="stock-bar" style="width:40%"></div></div>
-        <button class="product-card-btn">Commander</button>
-      </div>
-    </a>
-    <a href="commander.html?type=memoire" class="product-card">
-      <div class="product-card-img">🎓</div>
-      <div class="product-card-body">
-        <div class="product-card-title">Mémoire de fin de cycle</div>
-        <div class="product-card-prix">25 000 FCFA</div>
-        <div class="stock-bar-wrap"><div class="stock-bar" style="width:30%"></div></div>
-        <button class="product-card-btn">Commander</button>
-      </div>
-    </a>
-    <a href="commander.html?type=rapport" class="product-card">
-      <div class="product-card-img">📊</div>
-      <div class="product-card-body">
-        <div class="product-card-title">Rapport de Stage</div>
-        <div class="product-card-prix">10 000 FCFA</div>
-        <div class="stock-bar-wrap"><div class="stock-bar" style="width:60%"></div></div>
-        <button class="product-card-btn">Commander</button>
-      </div>
-    </a>
-  </div>
-</div>
-
-<!-- PDF BIBLIOTHÈQUE -->
-<div class="section">
-  <div class="section-header">
-    <span class="section-title">📚 Bibliothèque PDF</span>
-    <a href="bibliotheque.html" class="section-link">Voir Tout</a>
-  </div>
-  <div class="products-scroll" id="pdfScroll">
-    <div style="padding:30px;color:#888;font-weight:700;font-size:13px;">Chargement...</div>
-  </div>
-</div>
-
-<!-- OFFRES & SERVICES -->
-<div class="offres-section" style="background:var(--navy);padding:14px 12px;margin:0;">
-  <div style="color:white;font-size:15px;font-weight:800;margin-bottom:12px;">Profitez de nos offres & services</div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-    <div style="text-align:center;">
-      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E8C96A);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 6px;">⚡</div>
-      <div style="color:white;font-size:11px;font-weight:700;">Prix chocs</div>
-    </div>
-    <div style="text-align:center;">
-      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 6px;">🚀</div>
-      <div style="color:white;font-size:11px;font-weight:700;">Livraison 24h</div>
-    </div>
-    <div style="text-align:center;">
-      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 6px;">📱</div>
-      <div style="color:white;font-size:11px;font-weight:700;">Wave & OM</div>
-    </div>
-    <div style="text-align:center;">
-      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 6px;">✅</div>
-      <div style="color:white;font-size:11px;font-weight:700;">Qualité pro</div>
-    </div>
-  </div>
-</div>
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <a href="index.html" class="active">
-    <span class="icon">🏠</span>
-    <span>Accueil</span>
-  </a>
-  <a href="services.html">
-    <span class="icon">📋</span>
-    <span>Services</span>
-  </a>
-  <a href="commander.html">
-    <span class="icon">🛒</span>
-    <span>Commander</span>
-  </a>
-  <a href="bibliotheque.html">
-    <span class="icon">📚</span>
-    <span>Bibliothèque</span>
-  </a>
-  <a href="compte.html">
-    <span class="icon">👤</span>
-    <span>Compte</span>
-  </a>
-</nav>
-
-<script>
-// ── TOAST ──
-function showToast(msg, type='info') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 3000);
-}
-
-// ── SEARCH ──
-function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
-  if (q) window.location.href = 'bibliotheque.html?q=' + encodeURIComponent(q);
-}
-
-// ── SLIDER ──
-let currentSlide = 0;
-const slides = document.querySelectorAll('.hero-slide');
-const dots = document.querySelectorAll('.slider-dot');
-function nextSlide() {
-  slides[currentSlide].classList.remove('active');
-  dots[currentSlide].classList.remove('active');
-  currentSlide = (currentSlide + 1) % slides.length;
-  slides[currentSlide].classList.add('active');
-  dots[currentSlide].classList.add('active');
-}
-setInterval(nextSlide, 4000);
-
-// ── TIMER ──
-function updateTimer() {
-  const now = new Date();
-  const end = new Date();
-  end.setHours(23, 59, 59, 0);
-  let diff = Math.max(0, Math.floor((end - now) / 1000));
-  const h = Math.floor(diff / 3600);
-  diff %= 3600;
-  const m = Math.floor(diff / 60);
-  const s = diff % 60;
-  document.getElementById('timerH').textContent = String(h).padStart(2,'0');
-  document.getElementById('timerM').textContent = String(m).padStart(2,'0');
-  document.getElementById('timerS').textContent = String(s).padStart(2,'0');
-}
-updateTimer();
-setInterval(updateTimer, 1000);
-
-// ── CHARGER PDF ──
-async function loadPdfsHome() {
-  const scroll = document.getElementById('pdfScroll');
-  try {
-    const { data: items } = await db.from('bibliotheque').select('*').order('created_at', { ascending: false }).limit(6);
-    if (!items || !items.length) {
-      scroll.innerHTML = '<div style="padding:30px;color:#888;font-weight:700;font-size:13px;white-space:nowrap;">Aucun PDF disponible pour le moment</div>';
-      return;
-    }
-    scroll.innerHTML = items.map(p => `
-      <div class="product-card" onclick="window.location.href='bibliotheque.html'">
-        <div class="product-card-img">${p.image_url ? `<img src="${p.image_url}" alt="">` : '📄'}</div>
-        <div class="product-card-body">
-          <div class="product-card-title">${p.titre}</div>
-          <div class="product-card-prix">${(p.prix||1000).toLocaleString()} FCFA</div>
-          <button class="product-card-btn">Acheter</button>
-        </div>
-      </div>
-    `).join('');
-  } catch(e) {}
-}
-loadPdfsHome();
-
-// ── NOTIFICATIONS PUSH ──
-async function demanderNotifications() {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'granted') return;
-  if (Notification.permission === 'denied') return;
-  // Afficher bannière invitation
-  const banner = document.createElement('div');
-  banner.id = 'notifBanner';
-  banner.style.cssText = 'position:fixed;bottom:68px;left:0;right:0;background:#1B2A4A;color:white;padding:12px 16px;z-index:999;display:flex;align-items:center;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,0.2);';
-  banner.innerHTML = `
-    <span style="font-size:24px;">🔔</span>
-    <div style="flex:1;">
-      <div style="font-weight:800;font-size:13px;">Activer les notifications</div>
-      <div style="font-size:11px;opacity:0.8;">Soyez informé des nouveaux documents et promotions</div>
-    </div>
-    <button onclick="activerNotifs()" style="background:#C9A84C;color:#1B2A4A;border:none;padding:8px 14px;border-radius:8px;font-weight:800;font-size:12px;cursor:pointer;">Oui</button>
-    <button onclick="document.getElementById('notifBanner').remove()" style="background:rgba(255,255,255,0.15);color:white;border:none;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;">✕</button>
-  `;
-  document.body.appendChild(banner);
-}
-
-async function activerNotifs() {
-  const banner = document.getElementById('notifBanner');
-  if (banner) banner.remove();
-  const perm = await Notification.requestPermission();
-  if (perm === 'granted') {
-    showToast('🔔 Notifications activées !', 'success');
-    // Enregistrer SW
-    if ('serviceWorker' in navigator) {
-      await navigator.serviceWorker.register('/globaldoc/sw.js');
-    }
-  }
-}
-
-// Demander après 5 secondes sur la page
-setTimeout(demanderNotifications, 5000);
+-- Seul l'admin connecté peut supprimer
+DROP POLICY IF EXISTS "avis_delete" ON avis_clients;
+CREATE POLICY "avis_delete" ON avis_clients FOR DELETE USING (auth.role() = 'authenticated');
 
 
-// ── PWA ──
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/globaldoc/sw.js'));
-}
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (!window.matchMedia('(display-mode: standalone)').matches) showInstallBanner();
-});
-function showInstallBanner() {
-  const b = document.createElement('div');
-  b.innerHTML = `<div style="position:fixed;bottom:68px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:12px 16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:flex;align-items:center;gap:10px;z-index:9999;max-width:340px;width:92%;border:1px solid rgba(201,168,76,0.4);">
-    <span style="font-size:28px;">📱</span>
-    <div style="flex:1"><div style="font-weight:800;font-size:13px;">Installer GlobalDoc</div><div style="font-size:11px;opacity:0.8;">Accès rapide depuis votre écran</div></div>
-    <div style="display:flex;flex-direction:column;gap:4px;">
-      <button onclick="installApp()" style="background:var(--gold);color:var(--navy);border:none;padding:7px 12px;border-radius:6px;font-weight:800;font-size:12px;cursor:pointer;">Installer</button>
-      <button onclick="this.closest('div').parentElement.remove()" style="background:rgba(255,255,255,0.1);color:white;border:none;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;">Plus tard</button>
-    </div></div>`;
-  document.body.appendChild(b);
-  setTimeout(() => b.remove(), 15000);
-}
-async function installApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.querySelector('[onclick="installApp()"]')?.closest('div')?.parentElement?.remove();
-}
-</script>
-</body>
-</html>
+-- ── 2. TABLE CONFIG (contrôle du site depuis l'admin) ──
+
+CREATE TABLE IF NOT EXISTS config (
+  id          BIGSERIAL PRIMARY KEY,
+  cle         TEXT UNIQUE NOT NULL,
+  valeur      TEXT DEFAULT '',
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Valeurs par défaut
+INSERT INTO config (cle, valeur) VALUES
+  ('bibliotheque', 'true'),
+  ('flashsale',    'true'),
+  ('communaute',   'true'),
+  ('commandes',    'true'),
+  ('whatsapp',     '2250142116172'),
+  ('wave',         '0501233818'),
+  ('promo_text',   '🔥 Offre spéciale : CV + Lettre à 1300F seulement !'),
+  ('promo_date',   '')
+ON CONFLICT (cle) DO NOTHING;
+
+-- Sécurité RLS
+ALTER TABLE config ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "config_read" ON config;
+CREATE POLICY "config_read" ON config FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "config_write" ON config;
+CREATE POLICY "config_write" ON config FOR ALL USING (auth.role() = 'authenticated');
+
+
+-- ── VÉRIFICATION ──
+SELECT table_name, 'OK ✅' AS status
+FROM information_schema.tables
+WHERE table_schema = 'public'
+  AND table_name IN ('avis_clients', 'config')
+ORDER BY table_name;
+
+
+-- ── 3. TABLE MEDIAS (photos affiches + vidéos) ──
+
+CREATE TABLE IF NOT EXISTS medias (
+  id          BIGSERIAL PRIMARY KEY,
+  type        TEXT NOT NULL CHECK (type IN ('photo','video')),
+  titre       TEXT NOT NULL,
+  sous_titre  TEXT DEFAULT '',
+  image_url   TEXT,
+  video_url   TEXT,
+  lien        TEXT DEFAULT 'commander.html',
+  bouton      TEXT DEFAULT 'Voir →',
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE medias ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "medias_read"   ON medias;
+DROP POLICY IF EXISTS "medias_insert" ON medias;
+DROP POLICY IF EXISTS "medias_delete" ON medias;
+
+CREATE POLICY "medias_read"   ON medias FOR SELECT USING (true);
+CREATE POLICY "medias_insert" ON medias FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "medias_delete" ON medias FOR DELETE USING (auth.role() = 'authenticated');
+
+-- ── BUCKET STORAGE "medias" (pour les photos affiches) ──
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'medias', 'medias', true, 10485760,
+  ARRAY['image/jpeg','image/png','image/webp','image/gif']
+)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "medias_stor_read"   ON storage.objects;
+DROP POLICY IF EXISTS "medias_stor_insert" ON storage.objects;
+DROP POLICY IF EXISTS "medias_stor_delete" ON storage.objects;
+
+CREATE POLICY "medias_stor_read"   ON storage.objects FOR SELECT USING (bucket_id = 'medias');
+CREATE POLICY "medias_stor_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'medias');
+CREATE POLICY "medias_stor_delete" ON storage.objects FOR DELETE USING (bucket_id = 'medias');
